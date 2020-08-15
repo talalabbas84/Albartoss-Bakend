@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { addTeacher, updateTeacher } = require('../controllers/teacher');
+const { addTeacher, updateTeacher } = require('../controllers/Teacher');
 
 const { protect, authorize } = require('../middleware/auth');
 
