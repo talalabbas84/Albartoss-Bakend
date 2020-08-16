@@ -7,23 +7,23 @@ ObjectId = require('mongodb').ObjectID;
 //@route GET /api/v1/instructor
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Public
-// exports.getCourses = asynchandler(async (req, res, next) => {
-//   if (req.params.bootcampId) {
-//     const courses = await Course.find({ bootcamp: req.params.bootcampId });
+exports.getCourses = asynchandler(async (req, res, next) => {
+  if (req.params.bootcampId) {
+    const courses = await Course.find({ bootcamp: req.params.bootcampId });
 
-//     return res.status(200).json({
-//       success: true,
-//       count: courses.length,
-//       data: courses
-//     });
-//   } else {
-//     res.status(200).json(res.advancedResults);
-//   }
-// });
+    return res.status(200).json({
+      success: true,
+      count: courses.length,
+      data: courses
+    });
+  } else {
+    res.status(200).json(res.advancedResults);
+  }
+});
 
 // @desc Get single teacher
 // @route GET /api/v1/teacher/:id
-// @access Public
+// @access Pulic
 exports.getTeacher = asynchandler(async (req, res, next) => {
   const teacher = await Teacher.findById(req.params.id).populate({
     path: 'user',
@@ -50,11 +50,11 @@ exports.addTeacher = asynchandler(async (req, res, next) => {
   req.body.user = req.user.id;
 
   // Make sure user is course owner
-  // if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
-  //   return next(
-  //     new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
-  //   );
-  // }
+  if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
+    return next(
+      new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
+    );
+  }
   const teacher = await Teacher.create(req.body);
   res.status(200).json({
     success: true,
@@ -66,24 +66,23 @@ exports.addTeacher = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/teacher/:id
 // @access Private
 exports.updateTeacher = asynchandler(async (req, res, next) => {
-  console.log(req.user.id);
-  let teacher = await Teacher.findOne({ user: '5f378c039097173360171814' });
-  // have to work on validations
-  // console.log(teacher);
+  let teacher = await Teacher.find({ _id: req.params.id });
 
-  // if (!teacher) {
-  //   return next(
-  //     new ErrorResponse(`No teacher witht the id of ${req.params.id}`),
-  //     404
-  //   );
-  // }
-  // //console.log(teacher);
-  // // Make sure user is course owner
-  // if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
-  //   return next(
-  //     new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
-  //   );
-  // }
+  if (!teacher) {
+    return next(
+      new ErrorResponse(`No teacher witht the id of ${req.params.id}`),
+      404
+    );
+  }
+  // Make sure user is course owner
+  if (
+    teacher[0].user.toString() !== req.user.id &&
+    req.user.role !== 'teacher'
+  ) {
+    return next(
+      new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
+    );
+  }
 
   teacher = await Teacher.findByIdAndUpdate(req.params.id, req.body, {
     new: true,

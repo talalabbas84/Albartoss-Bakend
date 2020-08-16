@@ -1,8 +1,14 @@
 const router = require('express').Router();
 
-const { addTeacher, updateTeacher } = require('../controllers/Teacher');
+const {
+  addTeacher,
+  updateTeacher,
+  getTeacher
+} = require('../controllers/Teacher');
 
 const { protect, authorize } = require('../middleware/auth');
+
+router.route('/:id').get(getTeacher);
 
 router
   .route('/addteacher')
