@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const teacherSchema = new mongoose.Schema(
   {
+    title: String,
     firstname: {
       type: String,
       required: true
@@ -17,6 +18,9 @@ const teacherSchema = new mongoose.Schema(
     address: {
       type: String
     },
+    dateOfBirth: Date,
+    mobilenumber: String,
+
     education: {
       type: String
     },

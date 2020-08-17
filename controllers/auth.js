@@ -36,6 +36,7 @@ exports.register = asynchandler(async (req, res, next) => {
   if (role === 'teacher') {
     teacher = await Teacher.create({
       firstname,
+      mobilenumber,
       lastname,
       user: user._id
     });

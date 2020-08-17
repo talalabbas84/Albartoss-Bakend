@@ -4,7 +4,7 @@ const sendEmail = async options => {
   console.log(process.env.SMTP_EMAIL);
   console.log(process.env.SMTP_PASSWORD);
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    // service: 'gmail',
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
     secure: false,

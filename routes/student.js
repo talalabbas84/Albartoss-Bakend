@@ -1,34 +1,19 @@
 const router = require('express').Router();
 
-const { addTeacher, updateTeacher } = require('../controllers/teacher');
+const {
+  updateStudent,
+  studentPhotoUpload,
+  getStudents
+} = require('../controllers/student');
 
 const { protect, authorize } = require('../middleware/auth');
 
-router
-  .route('/addteacher')
-
-  .post(protect, authorize('teacher'), addTeacher);
+router.route('/:id').get(getStudent);
 
 router
-  .route('/updateteacher/:id')
-  .put(protect, authorize('teacher'), updateTeacher);
+  .route('/updatestudent/:id')
+  .put(protect, authorize('student'), updateStudent);
 
-// router
-//   .route('/:id/photo')
-//   .put(protect, authorize('publisher', 'admin'), bootcampPhotoUpload);
+router.route('/:id/photo').put(protect, studentPhotoUpload);
 
-// router
-//   .route('/:id')
-//   .get(getBootcamp)
-//   .put(protect, authorize('publisher', 'admin'), updateBootcamp)
-//   .delete(protect, authorize('publisher', 'admin'), deleteBootcamp);
-
-// router.post('/login', login);
-// router.get('/logout', logout);
-// router.get('/me', protect, getMe);
-// router.put('/updatedetails', protect, updateDetails);
-// router.put('/updatepassword', protect, updatePassword);
-// router.post('/forgotpassword', forgetPassword);
-// router.get('/resetpassword/:resettoken', resetPassword);
-// router.get('/verifyemail/:verifytoken/:email', verifyEmail);
 module.exports = router;

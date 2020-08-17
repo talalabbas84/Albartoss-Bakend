@@ -5,7 +5,7 @@ const {
   updateTeacher,
   getTeacher,
   teacherPhotoUpload
-} = require('../controllers/Teacher');
+} = require('../controllers/teacher');
 
 const { protect, authorize } = require('../middleware/auth');
 
