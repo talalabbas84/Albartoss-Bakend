@@ -13,7 +13,7 @@ exports.register = asynchandler(async (req, res, next) => {
   console.log(req.body);
   const { email, password, role, mobilenumber, firstname, lastname } = req.body;
 
-  const emailVerificationToken = crypto.randomBytes(20).toString('hex');
+  const emailVerificationCode = Math.floor(1000 + Math.random() * 9000);
 
   //Create user
   const user = await User.create({
@@ -24,25 +24,24 @@ exports.register = asynchandler(async (req, res, next) => {
     role,
     mobilenumber,
     verification: false,
-    emailVerificationToken: crypto
-      .createHash('sha256')
-      .update(emailVerificationToken)
-      .digest('hex'),
+    emailVerificationCode: emailVerificationCode,
     emailVerificationExpire: Date.now() + 10 * 60 * 1000
   });
   console.log(user);
+  //var val = Math.floor(1000 + Math.random() * 9000);
 
   if (user) {
     // Sending email to verify the email
     console.log(req.protocol);
     console.log(req.get('host'));
-    const VerificationUrl = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/auth/verifyemail/${user.emailVerificationToken}/${user.email} `;
+    // const VerificationUrl = `${req.protocol}://${req.get(
+    //   'host'
+    // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
 
     const message = `You are receiving this email because you
      (or someone else) has made an account with this email.
-      Please click on the link: \n\n ${VerificationUrl}`;
+     Your verfication code is \n\n ${emailVerificationCode}
+    `;
 
     try {
       await sendEmail({
@@ -57,7 +56,7 @@ exports.register = asynchandler(async (req, res, next) => {
     } catch (err) {
       console.log(err);
       user.resetPasswordExpire = undefined;
-      user.emailVerificationToken = undefined;
+      user.emailVerificationCode = undefined;
       await user.save({ validateBeforeSave: false });
 
       return next(new ErrorResponse(`Email could not be sent`, 500));
@@ -68,44 +67,46 @@ exports.register = asynchandler(async (req, res, next) => {
 });
 
 // @desc Verify Email
-//@route PUT /api/v1/auth/verifyemail/:verifytoken/:userid
+//@route PUT /api/v1/auth/verifyemail
 // @access Public
 exports.verifyEmail = asynchandler(async (req, res, next) => {
   // Get hashed token
-  // const emailVerificationToken = crypto
+  // const emailVerificationCode = crypto
   //   .createHash('sha256')
   //   .update(req.params.verifytoken)
   //   .digest('hex');
 
   //const userid = mongoose.Types.ObjectId(req.params.userid);
-  console.log(req.params.email);
+  console.log(req.user);
 
   // const user = await User.findOne({
-  //   //emailVerificationToken: req.params.verifytoken.toString()
+  //   //emailVerificationCode: req.params.verifytoken.toString()
   //   _id: userid
   //   // emailVerificationExpire: { $gt: Date.now() }
   // });
-  email = req.params.email.trim();
+  // email = req.params.email.trim();
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: req.user.email }).select(
+    '-password'
+  );
   console.log(user);
   if (!user) {
     return next(new ErrorResponse('Invalid Token', 400));
   }
   if (
-    user.emailVerificationToken.toString() ===
-      req.params.verifytoken.toString() &&
+    user.emailVerificationCode.toString() ===
+      req.body.emailVerificationCode.toString() &&
     user.emailVerificationExpire > Date.now()
   ) {
     // Verify the  account
     user.verification = true;
-    user.emailVerificationToken = undefined;
+    user.emailVerificationCode = undefined;
     user.emailVerificationExpire = undefined;
 
     await user.save();
     sendTokenResponse(user, 200, res);
   } else {
-    return next(new ErrorResponse('Invalid Token', 400));
+    return next(new ErrorResponse('Invalid Verification Code', 400));
   }
 });
 
@@ -122,7 +123,7 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   //Check for user
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('-password');
   if (!user) {
     return next(
       new ErrorResponse('Email Doesnt exist. Please click on join now', 401)
@@ -189,7 +190,7 @@ exports.updateDetails = asynchandler(async (req, res) => {
 //@route PUT /api/v1/auth/updatepassword
 // @access Private
 exports.updatePassword = asynchandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select('-password');
 
   //Check current password
   if (!(await user.matchPassword(req.body.currentPassword))) {
