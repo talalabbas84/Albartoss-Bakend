@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {
   updateStudent,
   studentPhotoUpload,
-  getStudents
+  getStudent
 } = require('../controllers/student');
 
 const { protect, authorize } = require('../middleware/auth');
