@@ -1,13 +1,15 @@
+const path = require('path');
+ObjectId = require('mongodb').ObjectID;
+
 const Teacher = require(`../models/Teacher`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
-ObjectId = require('mongodb').ObjectID;
 
 // @desc GetInstructor
 //@route GET /api/v1/instructor
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Public
-exports.getCourses = asynchandler(async (req, res, next) => {
+exports.getTeachers = asynchandler(async (req, res, next) => {
   if (req.params.bootcampId) {
     const courses = await Course.find({ bootcamp: req.params.bootcampId });
 
@@ -68,7 +70,7 @@ exports.addTeacher = asynchandler(async (req, res, next) => {
 exports.updateTeacher = asynchandler(async (req, res, next) => {
   let teacher = await Teacher.find({ _id: req.params.id });
 
-  if (!teacher) {
+  if (!teacher || teacher.length <= 0) {
     return next(
       new ErrorResponse(`No teacher witht the id of ${req.params.id}`),
       404
@@ -98,6 +100,7 @@ exports.updateTeacher = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/teacher/:id/photo
 // @access Private
 exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
+  console.log(req.files.file);
   const teacher = await Teacher.findById(req.params.id);
   if (!teacher) {
     return next(
@@ -130,6 +133,8 @@ exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
       )
     );
   }
+  console.log('checking out the file');
+  console.log(file);
 
   //Create custom filename
   file.name = `photo_${teacher._id}${path.parse(file.name).ext}`;

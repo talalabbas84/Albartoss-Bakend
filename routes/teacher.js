@@ -3,7 +3,8 @@ const router = require('express').Router();
 const {
   addTeacher,
   updateTeacher,
-  getTeacher
+  getTeacher,
+  teacherPhotoUpload
 } = require('../controllers/Teacher');
 
 const { protect, authorize } = require('../middleware/auth');
@@ -18,6 +19,8 @@ router
 router
   .route('/updateteacher/:id')
   .put(protect, authorize('teacher'), updateTeacher);
+
+router.route('/:id/photo').put(protect, teacherPhotoUpload);
 
 // router
 //   .route('/:id/photo')

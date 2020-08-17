@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 var mongoose = require('mongoose');
 const User = require(`../models/User`);
+const Teacher = require(`../models/Teacher`);
+const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const sendEmail = require(`../utils/sendEmail`);
 const asynchandler = require(`../middleware/async`);
@@ -27,7 +29,24 @@ exports.register = asynchandler(async (req, res, next) => {
     emailVerificationCode: emailVerificationCode,
     emailVerificationExpire: Date.now() + 10 * 60 * 1000
   });
-  console.log(user);
+
+  let teacher;
+  let student;
+
+  if (role === 'teacher') {
+    teacher = await Teacher.create({
+      firstname,
+      lastname,
+      user: user._id
+    });
+  } else if (role === 'student') {
+    student = await Student.create({
+      firstname,
+      lastname,
+      user: user._id
+    });
+  }
+
   //var val = Math.floor(1000 + Math.random() * 9000);
 
   if (user) {
@@ -49,10 +68,8 @@ exports.register = asynchandler(async (req, res, next) => {
         subject: 'Email Verification',
         message
       });
-      res.status(200).json({
-        success: true,
-        data: 'Please check your email to verify the account'
-      });
+      user.password = '';
+      sendTokenResponse(user, 200, res);
     } catch (err) {
       console.log(err);
       user.resetPasswordExpire = undefined;
