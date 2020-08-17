@@ -123,7 +123,7 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   //Check for user
-  const user = await User.findOne({ email }).select('-password');
+  const user = await User.findOne({ email }).select('+password');
   if (!user) {
     return next(
       new ErrorResponse('Email Doesnt exist. Please click on join now', 401)
@@ -136,6 +136,8 @@ exports.login = asynchandler(async (req, res, next) => {
   if (!isMatch) {
     return next(new ErrorResponse('Email and Password dont match', 401));
   }
+
+  user.password = '';
 
   sendTokenResponse(user, 200, res);
 });
