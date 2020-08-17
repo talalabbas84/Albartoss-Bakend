@@ -8,7 +8,7 @@ const asynchandler = require(`../middleware/async`);
 //@desc Register user
 //@route POST /api/v1/auth/register
 // @access Public
-exports.register = asynchandler(async (req, res) => {
+exports.register = asynchandler(async (req, res, next) => {
   console.log('coming to register controller');
   console.log(req.body);
   const { email, password, role, mobilenumber, firstname, lastname } = req.body;
