@@ -10,7 +10,7 @@ const asynchandler = require(`../middleware/async`);
 // @access Private
 exports.getCategories = asynchandler(async (req, res, next) => {
   const categories = await Category.find({});
-  console.log(categories);
+
   if (!categories) {
     return next(new ErrorResponse(`No categories found`), 404);
   }

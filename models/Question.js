@@ -15,9 +15,9 @@ const questionSchema = new mongoose.Schema(
       type: [mongoose.Schema.ObjectId],
       ref: 'Answer'
     },
-    student: {
+    user: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Student',
+      ref: 'User',
       required: true
     }
   },
