@@ -10,11 +10,27 @@ const asynchandler = require(`../middleware/async`);
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Private
 exports.getQuestions = asynchandler(async (req, res, next) => {
-  const question = await Question.find({});
+  const question = await Question.find({}).populate('user');
+  let data;
+
+  // await Question.aggregate([
+  //   {
+  //     $lookup: {
+  //       from: 'User', // collection name in db
+  //       localField: 'user',
+  //       foreignField: '_id',
+  //       as: 'user'
+  //     }
+  //   }
+  // ]).exec(function (err, data) {
+  //   data = data;
+  //   // students contain WorksnapsTimeEntries
+  // });
   return res.status(200).json({
     success: true,
-    count: question.length,
     data: question
+    // count: question.length,
+    // data: question
   });
   // if (req.params.bootcampId) {
   //   const question = await Question.find({ bootcamp: req.params.bootcampId });
