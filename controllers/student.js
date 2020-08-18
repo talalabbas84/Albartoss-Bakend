@@ -102,8 +102,7 @@ exports.updateStudent = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/student/photo
 // @access Private
 exports.studentPhotoUpload = asynchandler(async (req, res, next) => {
-  console.log(req.files.file);
-  const student = await Student.findById(req.user._id);
+  const student = await Student.findById(req.userrole);
   if (!student) {
     return next(
       new ErrorResponse(`student not found with id of ${req.user._id}`, 404)
@@ -135,8 +134,6 @@ exports.studentPhotoUpload = asynchandler(async (req, res, next) => {
       )
     );
   }
-  console.log('checking out the file');
-  console.log(file);
 
   //Create custom filename
   file.name = `photo_${student._id}${path.parse(file.name).ext}`;
@@ -146,9 +143,10 @@ exports.studentPhotoUpload = asynchandler(async (req, res, next) => {
       console.log(err);
       return next(new ErrorResponse(`Problem with file upload`, 500));
     }
-    const user = await User.findByIdAndUpdate(req.params.id, {
+    const user = await User.findByIdAndUpdate(req.user._id, {
       photo: file.name
     });
+    console.log(user);
     return res.status(200).json({ success: true, data: file.name, user });
   });
 });
