@@ -1,19 +1,24 @@
 const nodemailer = require('nodemailer');
+const nodemailerSendgrid = require('nodemailer-sendgrid');
 
 const sendEmail = async options => {
   console.log(process.env.SMTP_EMAIL);
   console.log(process.env.SMTP_PASSWORD);
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
+  const transporter = nodemailer.createTransport(
+    // service: 'gmail',
+    // host: process.env.SMTP_HOST,
+    // port: process.env.SMTP_PORT,
+    // secure: false,
 
-    auth: {
-      user: process.env.SMTP_EMAIL,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
+    // auth: {
+    //   user: process.env.SMTP_EMAIL,
+    //   pass: process.env.SMTP_PASSWORD
+    // }
+    nodemailerSendgrid({
+      apiKey:
+        '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'
+    })
+  );
 
   let message = {
     from: `${process.env.FROM_NAME}<${process.env.FROM_EMAIL}`,

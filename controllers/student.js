@@ -4,6 +4,7 @@ ObjectId = require('mongodb').ObjectID;
 const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
+const User = require('../models/User');
 
 // @desc GetInstructor
 //@route GET /api/v1/instructor
@@ -64,15 +65,15 @@ exports.addStudent = asynchandler(async (req, res, next) => {
   // });
 });
 
-// @desc Update Student
-//@route PUT /api/v1/student/:id
+// @desc Update Personal info Student
+//@route PUT /api/v1/student/updatestudentprofile
 // @access Private
 exports.updateStudent = asynchandler(async (req, res, next) => {
-  let student = await Student.find({ _id: req.params.id });
+  let student = await Student.find({ _id: req.userrole });
 
   if (!student || student.length <= 0) {
     return next(
-      new ErrorResponse(`No student witht the id of ${req.params.id}`),
+      new ErrorResponse(`No student witht the id of ${req.userrole}`),
       404
     );
   }
@@ -86,32 +87,33 @@ exports.updateStudent = asynchandler(async (req, res, next) => {
     );
   }
 
-  student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+  student = await User.findByIdAndUpdate(req.user._id, req.body.user, {
     new: true,
     runValidators: true
   });
+
   res.status(200).json({
     success: true,
-    data: student
+    user: student
   });
 });
 
 // @desc Upload photo for student
-//@route PUT /api/v1/student/:id/photo
+//@route PUT /api/v1/student/photo
 // @access Private
 exports.studentPhotoUpload = asynchandler(async (req, res, next) => {
   console.log(req.files.file);
-  const student = await Student.findById(req.params.id);
+  const student = await Student.findById(req.user._id);
   if (!student) {
     return next(
-      new ErrorResponse(`student not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`student not found with id of ${req.user._id}`, 404)
     );
   }
 
   if (student.user.toString() !== req.user.id && req.user.role !== 'student') {
     return next(
       new ErrorResponse(
-        `User ${req.params.id} is not authorized to update this`,
+        `User ${req.user._id} is not authorized to update this`,
         401
       )
     );
@@ -144,8 +146,10 @@ exports.studentPhotoUpload = asynchandler(async (req, res, next) => {
       console.log(err);
       return next(new ErrorResponse(`Problem with file upload`, 500));
     }
-    await Student.findByIdAndUpdate(req.params.id, { photo: file.name });
-    return res.status(200).json({ success: true, data: file.name });
+    const user = await User.findByIdAndUpdate(req.params.id, {
+      photo: file.name
+    });
+    return res.status(200).json({ success: true, data: file.name, user });
   });
 });
 

@@ -47,11 +47,14 @@ exports.register = asynchandler(async (req, res, next) => {
       user: user._id
     });
   }
+  console.log(user);
+  const userrole = await getuserRoleId(user);
 
   //var val = Math.floor(1000 + Math.random() * 9000);
 
   if (user) {
     // Sending email to verify the email
+
     console.log(req.protocol);
     console.log(req.get('host'));
     // const VerificationUrl = `${req.protocol}://${req.get(
@@ -70,12 +73,12 @@ exports.register = asynchandler(async (req, res, next) => {
         message
       });
       user.password = '';
-      sendTokenResponse(user, 200, res);
+      sendTokenResponse(user, 200, res, userrole);
     } catch (err) {
       console.log(err);
       user.resetPasswordExpire = undefined;
       user.emailVerificationCode = undefined;
-      await user.save({ validateBeforeSave: false });
+      await user.remove();
 
       return next(new ErrorResponse(`Email could not be sent`, 500));
     }
@@ -107,6 +110,7 @@ exports.verifyEmail = asynchandler(async (req, res, next) => {
     '-password'
   );
   console.log(user);
+  const userrole = await getuserRoleId(user);
 
   if (!user) {
     return next(new ErrorResponse('Invalid Token', 400));
@@ -122,7 +126,7 @@ exports.verifyEmail = asynchandler(async (req, res, next) => {
     user.emailVerificationExpire = undefined;
 
     await user.save();
-    sendTokenResponse(user, 200, res);
+    sendTokenResponse(user, 200, res, userrole);
   } else {
     return next(new ErrorResponse('Invalid Verification Code', 400));
   }
@@ -141,12 +145,10 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   //Check for user
-  const user = await User.findOne({ email }).select('+password').populate({
-    path: 'student',
-    select: '_id name'
-  });
+  const user = await User.findOne({ email }).select('+password');
+  console.log(user, 'checking if user exist');
+  const userrole = await getuserRoleId(user);
 
-  console.log(user);
   if (!user) {
     return next(
       new ErrorResponse('Email Doesnt exist. Please click on join now', 401)
@@ -161,8 +163,9 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   user.password = '';
+  console.log(userrole, 'checking if user role exist');
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res, userrole);
 });
 
 // @desc Log user out/ clear cookie
@@ -296,9 +299,10 @@ exports.resetPassword = asynchandler(async (req, res, next) => {
 });
 
 // Get token from model, create cookie and send response
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, userrole) => {
+  console.log(userrole, 'checking if user role exist in token');
   //Create token
-  const token = user.getSignedJwtToken();
+  const token = user.getSignedJwtToken(userrole);
 
   const options = {
     expires: new Date(
@@ -313,5 +317,17 @@ const sendTokenResponse = (user, statusCode, res) => {
   res
     .status(statusCode)
     .cookie('token', token, options)
-    .json({ success: true, token, user });
+    .json({ success: true, token, user, userrole });
+};
+
+const getuserRoleId = async user => {
+  console.log(user, 'roleees');
+  let userrole;
+  if (user.role === 'student') {
+    userrole = await Student.find({ user: user._id });
+  } else if (user.role === 'teacher') {
+    userrole = await Teacher.find({ user: user._id });
+  }
+
+  return userrole;
 };

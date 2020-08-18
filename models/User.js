@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add your last name']
   },
+  mobilenumber: {
+    type: String,
+    default: ''
+  },
   email: {
     type: String,
     required: [true, 'Please add an email'],
@@ -20,13 +24,31 @@ const userSchema = new mongoose.Schema({
       'Please add a valid email'
     ]
   },
+  streetNo: {
+    type: String,
+    default: ''
+  },
+  houseNo: {
+    type: String,
+    default: ''
+  },
+  city: { type: String, default: '' },
+  postalCode: {
+    type: String,
+    default: ''
+  },
   role: {
     type: String,
     enum: ['student', 'teacher'],
     default: 'student'
   },
-  mobilenumber: {
-    type: String
+  dateOfBirth: {
+    type: String,
+    default: ''
+  },
+  photo: {
+    type: String,
+    default: 'no-photo.jpg'
   },
   password: {
     type: String,
@@ -38,6 +60,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+
   emailVerificationCode: String,
   emailVerificationExpire: String,
   resetPasswordToken: String,
@@ -58,10 +81,29 @@ userSchema.pre('save', async function (next) {
 });
 
 // Sign JWT and return
-userSchema.methods.getSignedJwtToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+userSchema.methods.getSignedJwtToken = function (userrole) {
+  console.log('check the jwt token');
+  console.log(userrole, 'checling if userole exist in jwt token');
+
+  if (userrole.length > 0) {
+    console.log(userrole[0]._id, 'user role');
+    return jwt.sign(
+      { id: this._id, user: userrole[0]._id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRE
+      }
+    );
+  } else {
+    console.log(userrole._id, 'user role');
+    return jwt.sign(
+      { id: this._id, user: userrole._id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRE
+      }
+    );
+  }
 };
 
 // Match user entered password to hashed password in database
@@ -83,12 +125,5 @@ userSchema.methods.getResetPasswordToken = function () {
 
   return resetToken;
 };
-
-userSchema.virtual('student', {
-  ref: 'Student',
-  localField: 'user',
-  foreignField: '_id',
-  justOne: false
-});
 
 module.exports = mongoose.model('User', userSchema);
