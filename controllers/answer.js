@@ -6,12 +6,12 @@ const Answer = require(`../models/Answer`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 
-// @desc GetQuestions according to teachers category
-//@route GET /api/v1/question
+// @desc GetAnswers according to teachers category
+//@route GET /api/v1/answer
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Private
 exports.getQuestions = asynchandler(async (req, res, next) => {
-  const question = await Question.find({}).populate('user');
+  const question = await Question.find({}).populate('user').populate('answer');
   let data;
 
   // await Question.aggregate([

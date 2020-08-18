@@ -16,8 +16,7 @@ const questionSchema = new mongoose.Schema(
       required: true
     },
     answer: {
-      type: [mongoose.Schema.ObjectId],
-      ref: 'Answer'
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Answer' }]
     },
     user: {
       type: mongoose.Schema.ObjectId,

@@ -10,7 +10,15 @@ const asynchandler = require(`../middleware/async`);
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Private
 exports.getQuestions = asynchandler(async (req, res, next) => {
-  const question = await Question.find({}).populate('user');
+  const question = await Question.find({})
+    .populate({
+      path: 'answer',
+      populate: {
+        path: 'user'
+      }
+    })
+    .populate('user');
+
   let data;
 
   // await Question.aggregate([
