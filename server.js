@@ -23,6 +23,7 @@ const teacher = require('./routes/teacher');
 const student = require('./routes/student');
 const category = require('./routes/category');
 const question = require('./routes/question');
+const answer = require('./routes/answer');
 
 // if (cluster.isMaster) {
 //   cluster.fork();
@@ -81,6 +82,7 @@ app.use(`/api/v1/teacher`, teacher);
 app.use(`/api/v1/student`, student);
 app.use(`/api/v1/category`, category);
 app.use(`/api/v1/question`, question);
+app.use(`/api/v1/answer`, answer);
 
 app.use(errorHandler);
 

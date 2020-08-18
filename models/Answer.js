@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 
 const answerSchema = new mongoose.Schema(
   {
-    answer: {
+    description: {
       type: String,
-      required
+      required: true
     },
-    teacher: {
+    user: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Teacher'
+      ref: 'User'
     },
     question: {
       type: mongoose.Schema.ObjectId,
@@ -21,4 +21,4 @@ const answerSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Category', categorySchema);
+module.exports = mongoose.model('Answer', answerSchema);
