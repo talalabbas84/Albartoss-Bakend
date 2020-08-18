@@ -2,6 +2,7 @@ const path = require('path');
 ObjectId = require('mongodb').ObjectID;
 
 const Teacher = require(`../models/Teacher`);
+const User = require(`../models/User`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 
@@ -101,18 +102,17 @@ exports.updateTeacher = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/teacher/:id/photo
 // @access Private
 exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
-  console.log(req.files.file);
-  const teacher = await Teacher.findById(req.params.id);
+  const teacher = await Teacher.findById(req.userrole);
   if (!teacher) {
     return next(
-      new ErrorResponse(`Teacher not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`teacher not found with id of ${req.user._id}`, 404)
     );
   }
 
   if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
     return next(
       new ErrorResponse(
-        `User ${req.params.id} is not authorized to update this`,
+        `User ${req.user._id} is not authorized to update this`,
         401
       )
     );
@@ -134,8 +134,6 @@ exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
       )
     );
   }
-  console.log('checking out the file');
-  console.log(file);
 
   //Create custom filename
   file.name = `photo_${teacher._id}${path.parse(file.name).ext}`;
@@ -145,8 +143,11 @@ exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
       console.log(err);
       return next(new ErrorResponse(`Problem with file upload`, 500));
     }
-    await Teacher.findByIdAndUpdate(req.params.id, { photo: file.name });
-    return res.status(200).json({ success: true, data: file.name });
+    const user = await User.findByIdAndUpdate(req.user._id, {
+      photo: file.name
+    });
+    console.log(user);
+    return res.status(200).json({ success: true, data: file.name, user });
   });
 });
 

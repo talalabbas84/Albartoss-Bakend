@@ -55,6 +55,7 @@ exports.getQuestions = asynchandler(async (req, res, next) => {
 //@route POST /api/v1/question/addquestion
 // @access Private
 exports.addQuestion = asynchandler(async (req, res, next) => {
+  console.log(req.user._id);
   req.body.user = req.user._id;
   console.log('coming here');
   console.log(req.user);

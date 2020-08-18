@@ -17,10 +17,10 @@ router
   .post(protect, authorize('teacher'), addTeacher);
 
 router
-  .route('/updateteacher/:id')
+  .route('/updateteacher')
   .put(protect, authorize('teacher'), updateTeacher);
 
-router.route('/:id/photo').put(protect, teacherPhotoUpload);
+router.route('/photo').put(protect, teacherPhotoUpload);
 
 // router
 //   .route('/:id/photo')

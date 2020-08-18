@@ -5,6 +5,7 @@ const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 const User = require('../models/User');
+const Teacher = require('../models/Teacher');
 
 // @desc GetInstructor
 //@route GET /api/v1/instructor
@@ -68,33 +69,38 @@ exports.getStudent = asynchandler(async (req, res, next) => {
 // @desc Update Personal info Student
 //@route PUT /api/v1/student/updatestudentprofile
 // @access Private
-exports.updateStudent = asynchandler(async (req, res, next) => {
-  let student = await Student.find({ _id: req.userrole });
+exports.updateUser = asynchandler(async (req, res, next) => {
+  let person;
+  if (req.user.role === 'student') {
+    person = await Student.find({ _id: req.userrole });
+  } else if (req.user.role === 'teacher') {
+    person = await Teacher.find({ _id: req.userrole });
+  }
 
-  if (!student || student.length <= 0) {
+  if (!person || person.length <= 0) {
     return next(
-      new ErrorResponse(`No student witht the id of ${req.userrole}`),
+      new ErrorResponse(`No User witht the id of ${req.userrole}`),
       404
     );
   }
   // Make sure user is course owner
-  if (
-    student[0].user.toString() !== req.user.id &&
-    req.user.role !== 'student'
-  ) {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
-    );
-  }
+  // if (
+  //   student[0].user.toString() !== req.user.id &&
+  //   req.user.role !== 'student'
+  // ) {
+  //   return next(
+  //     new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
+  //   );
+  // }
 
-  student = await User.findByIdAndUpdate(req.user._id, req.body.user, {
+  person = await User.findByIdAndUpdate(req.user._id, req.body.user, {
     new: true,
     runValidators: true
   });
 
   res.status(200).json({
     success: true,
-    user: student
+    user: person
   });
 });
 
