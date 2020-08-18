@@ -66,10 +66,12 @@ exports.addQuestion = asynchandler(async (req, res, next) => {
       new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
     );
   }
+
   const question = await Question.create(req.body);
   res.status(200).json({
     success: true,
-    data: question
+    data: question,
+    user: req.user
   });
 });
 
