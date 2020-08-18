@@ -141,7 +141,12 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   //Check for user
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password').populate({
+    path: 'student',
+    select: '_id name'
+  });
+
+  console.log(user);
   if (!user) {
     return next(
       new ErrorResponse('Email Doesnt exist. Please click on join now', 401)

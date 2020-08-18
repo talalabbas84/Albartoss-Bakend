@@ -1,4 +1,3 @@
-process.env.UV_THREADPOOL_SIZE = 5;
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require(`morgan`);
@@ -82,7 +81,6 @@ app.use(`/api/v1/teacher`, teacher);
 app.use(`/api/v1/student`, student);
 app.use(`/api/v1/category`, category);
 app.use(`/api/v1/question`, question);
-// app.use(`/api/v1/bootcamps`, bootcamps);
 
 app.use(errorHandler);
 
