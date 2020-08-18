@@ -68,11 +68,11 @@ exports.addTeacher = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/teacher/:id
 // @access Private
 exports.updateTeacher = asynchandler(async (req, res, next) => {
-  let teacher = await Teacher.find({ _id: req.params.id });
+  let teacher = await Teacher.find({ _id: req.userrole });
 
   if (!teacher || teacher.length <= 0) {
     return next(
-      new ErrorResponse(`No teacher witht the id of ${req.params.id}`),
+      new ErrorResponse(`No teacher witht the id of ${req.userrole}`),
       404
     );
   }
@@ -86,13 +86,14 @@ exports.updateTeacher = asynchandler(async (req, res, next) => {
     );
   }
 
-  teacher = await Teacher.findByIdAndUpdate(req.params.id, req.body, {
+  teacher = await User.findByIdAndUpdate(req.user._id, req.body.user, {
     new: true,
     runValidators: true
   });
+
   res.status(200).json({
     success: true,
-    data: teacher
+    user: teacher
   });
 });
 

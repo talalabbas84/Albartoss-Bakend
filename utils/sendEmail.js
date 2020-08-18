@@ -15,8 +15,7 @@ const sendEmail = async options => {
     //   pass: process.env.SMTP_PASSWORD
     // }
     nodemailerSendgrid({
-      apiKey:
-        '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'
+      apiKey: `${process.env.SENDGRID_API_KEY}`
     })
   );
 

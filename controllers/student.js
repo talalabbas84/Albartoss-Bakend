@@ -46,24 +46,24 @@ exports.getStudent = asynchandler(async (req, res, next) => {
   });
 });
 
-// @desc Add Student
-//@route POST /api/v1/student/addstudent
-// @access Private
-exports.addStudent = asynchandler(async (req, res, next) => {
-  req.body.user = req.user.id;
+// // @desc Add Student
+// //@route POST /api/v1/student/addstudent
+// // @access Private
+// exports.addStudent = asynchandler(async (req, res, next) => {
+//   req.body.user = req.user.id;
 
-  // Make sure user is course owner
-  if (student.user.toString() !== req.user.id && req.user.role !== 'student') {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
-    );
-  }
-  // const teacher = await Teacher.create(req.body);
-  // res.status(200).json({
-  //   success: true,
-  //   data: teacher
-  // });
-});
+//   // Make sure user is course owner
+//   if (student.user.toString() !== req.user.id && req.user.role !== 'student') {
+//     return next(
+//       new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
+//     );
+//   }
+//   // const teacher = await Teacher.create(req.body);
+//   // res.status(200).json({
+//   //   success: true,
+//   //   data: teacher
+//   // });
+// });
 
 // @desc Update Personal info Student
 //@route PUT /api/v1/student/updatestudentprofile
