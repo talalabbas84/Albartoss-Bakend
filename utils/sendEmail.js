@@ -4,6 +4,7 @@ const nodemailerSendgrid = require('nodemailer-sendgrid');
 const sendEmail = async options => {
   console.log(process.env.SMTP_EMAIL);
   console.log(process.env.SMTP_PASSWORD);
+  console.log(process.env.SENDGRID_API_KEY);
   const transporter = nodemailer.createTransport(
     // service: 'gmail',
     // host: process.env.SMTP_HOST,

@@ -265,7 +265,7 @@ exports.forgetPassword = asynchandler(async (req, res, next) => {
     console.log(err);
     user.resetPasswordExpire = undefined;
     user.resetPasswordToken = undefined;
-    await user.save({ validateBeforeSave: false });
+    await user.remove();
 
     return next(new ErrorResponse(`Email could not be sent`, 500));
   }
