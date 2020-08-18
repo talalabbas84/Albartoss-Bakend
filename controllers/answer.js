@@ -101,11 +101,11 @@ exports.answerQuestion = asynchandler(async (req, res, next) => {
   );
 
   console.log(question);
-
   res.status(200).json({
     success: true,
     data: question,
-    answer: answer
+    answer: answer,
+    user: req.user
   });
 });
 
