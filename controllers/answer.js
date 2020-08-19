@@ -78,7 +78,7 @@ exports.answerQuestion = asynchandler(async (req, res, next) => {
   console.log(req.user);
 
   // Make sure user is course owner
-  if (req.user.role !== 'teacher') {
+  if (req.user.role !== 'instructor') {
     return next(
       new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
     );

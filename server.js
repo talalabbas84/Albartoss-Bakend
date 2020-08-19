@@ -19,7 +19,7 @@ const errorHandler = require(`./middleware/error`);
 
 dotenv.config({ path: './config/config.env' });
 const auth = require(`./routes/auth`);
-const teacher = require('./routes/teacher');
+const instructor = require('./routes/instructor');
 const student = require('./routes/student');
 const category = require('./routes/category');
 const question = require('./routes/question');
@@ -79,7 +79,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Mount routers
 
 app.use(`/api/v1/auth`, auth);
-app.use(`/api/v1/teacher`, teacher);
+app.use(`/api/v1/instructor`, instructor);
 app.use(`/api/v1/student`, student);
 app.use(`/api/v1/category`, category);
 app.use(`/api/v1/question`, question);

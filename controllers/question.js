@@ -5,7 +5,7 @@ const Question = require(`../models/Question`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 
-// @desc GetQuestions according to teachers category
+// @desc GetQuestions according to instructors category
 //@route GET /api/v1/question
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Private

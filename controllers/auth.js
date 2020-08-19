@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 var mongoose = require('mongoose');
 const User = require(`../models/User`);
-const Teacher = require(`../models/Teacher`);
+const Instructor = require(`../models/Instructor`);
 const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const sendEmail = require(`../utils/sendEmail`);
@@ -30,11 +30,11 @@ exports.register = asynchandler(async (req, res, next) => {
     emailVerificationExpire: Date.now() + 10 * 60 * 1000
   });
 
-  let teacher;
+  let instructor;
   let student;
 
-  if (role === 'teacher') {
-    teacher = await Teacher.create({
+  if (role === 'instructor') {
+    instructor = await Instructor.create({
       firstname,
       mobilenumber,
       lastname,
@@ -426,8 +426,8 @@ const getuserRoleId = async user => {
   let userrole;
   if (user.role === 'student') {
     userrole = await Student.find({ user: user._id });
-  } else if (user.role === 'teacher') {
-    userrole = await Teacher.find({ user: user._id });
+  } else if (user.role === 'instructor') {
+    userrole = await Instructor.find({ user: user._id });
   }
 
   return userrole;

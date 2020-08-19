@@ -1,7 +1,7 @@
 const path = require('path');
 ObjectId = require('mongodb').ObjectID;
 
-const Teacher = require(`../models/Teacher`);
+const Instructor = require(`../models/Instructor`);
 const User = require(`../models/User`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
@@ -10,7 +10,7 @@ const asynchandler = require(`../middleware/async`);
 //@route GET /api/v1/instructor
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Public
-exports.getTeachers = asynchandler(async (req, res, next) => {
+exports.getInstructors = asynchandler(async (req, res, next) => {
   if (req.params.bootcampId) {
     const courses = await Course.find({ bootcamp: req.params.bootcampId });
 
@@ -24,92 +24,98 @@ exports.getTeachers = asynchandler(async (req, res, next) => {
   }
 });
 
-// @desc Get single teacher
-// @route GET /api/v1/teacher/:id
+// @desc Get single instructor
+// @route GET /api/v1/instructor/:id
 // @access Pulic
-exports.getTeacher = asynchandler(async (req, res, next) => {
-  const teacher = await Teacher.findById(req.params.id).populate({
+exports.getInstructor = asynchandler(async (req, res, next) => {
+  const instructor = await Instructor.findById(req.params.id).populate({
     path: 'user',
     select: 'name _id'
   });
 
-  if (!teacher) {
+  if (!instructor) {
     return next(
-      new ErrorResponse(`No teacher witht the id of ${req.params.id}`),
+      new ErrorResponse(`No instructor witht the id of ${req.params.id}`),
       404
     );
   }
   res.status(200).json({
     success: true,
-    count: teacher.length,
-    data: teacher
+    count: instructor.length,
+    data: instructor
   });
 });
 
 // @desc Add Instructor
-//@route POST /api/v1/teacher/addteacher
+//@route POST /api/v1/instructor/addinstructor
 // @access Private
-exports.addTeacher = asynchandler(async (req, res, next) => {
+exports.addInstructor = asynchandler(async (req, res, next) => {
   req.body.user = req.user.id;
 
   // Make sure user is course owner
-  if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
+  if (
+    instructor.user.toString() !== req.user.id &&
+    req.user.role !== 'instructor'
+  ) {
     return next(
       new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
     );
   }
-  // const teacher = await Teacher.create(req.body);
+  // const instructor = await Instructor.create(req.body);
   // res.status(200).json({
   //   success: true,
-  //   data: teacher
+  //   data: instructor
   // });
 });
 
-// @desc Update Teacher
-//@route PUT /api/v1/teacher/:id
+// @desc Update Instructor
+//@route PUT /api/v1/instructor/:id
 // @access Private
-exports.updateTeacher = asynchandler(async (req, res, next) => {
-  let teacher = await Teacher.find({ _id: req.userrole });
+exports.updateInstructor = asynchandler(async (req, res, next) => {
+  let instructor = await Instructor.find({ _id: req.userrole });
 
-  if (!teacher || teacher.length <= 0) {
+  if (!instructor || instructor.length <= 0) {
     return next(
-      new ErrorResponse(`No teacher witht the id of ${req.userrole}`),
+      new ErrorResponse(`No instructor witht the id of ${req.userrole}`),
       404
     );
   }
   // Make sure user is course owner
   if (
-    teacher[0].user.toString() !== req.user.id &&
-    req.user.role !== 'teacher'
+    instructor[0].user.toString() !== req.user.id &&
+    req.user.role !== 'instructor'
   ) {
     return next(
       new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
     );
   }
 
-  teacher = await User.findByIdAndUpdate(req.user._id, req.body.user, {
+  instructor = await User.findByIdAndUpdate(req.user._id, req.body.user, {
     new: true,
     runValidators: true
   });
 
   res.status(200).json({
     success: true,
-    user: teacher
+    user: instructor
   });
 });
 
-// @desc Upload photo for teacher
-//@route PUT /api/v1/teacher/:id/photo
+// @desc Upload photo for instructor
+//@route PUT /api/v1/instructor/:id/photo
 // @access Private
-exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
-  const teacher = await Teacher.findById(req.userrole);
-  if (!teacher) {
+exports.instructorPhotoUpload = asynchandler(async (req, res, next) => {
+  const instructor = await Instructor.findById(req.userrole);
+  if (!instructor) {
     return next(
-      new ErrorResponse(`teacher not found with id of ${req.user._id}`, 404)
+      new ErrorResponse(`instructor not found with id of ${req.user._id}`, 404)
     );
   }
 
-  if (teacher.user.toString() !== req.user.id && req.user.role !== 'teacher') {
+  if (
+    instructor.user.toString() !== req.user.id &&
+    req.user.role !== 'instructor'
+  ) {
     return next(
       new ErrorResponse(
         `User ${req.user._id} is not authorized to update this`,
@@ -136,7 +142,7 @@ exports.teacherPhotoUpload = asynchandler(async (req, res, next) => {
   }
 
   //Create custom filename
-  file.name = `photo_${teacher._id}${path.parse(file.name).ext}`;
+  file.name = `photo_${instructor._id}${path.parse(file.name).ext}`;
 
   file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
     if (err) {

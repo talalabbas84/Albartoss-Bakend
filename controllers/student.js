@@ -5,7 +5,7 @@ const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 const User = require('../models/User');
-const Teacher = require('../models/Teacher');
+const Instructor = require('../models/Instructor');
 
 // @desc GetInstructor
 //@route GET /api/v1/instructor

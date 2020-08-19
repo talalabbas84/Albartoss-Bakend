@@ -5,7 +5,7 @@ const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 const User = require('../models/User');
-const Teacher = require('../models/Teacher');
+const Instructor = require('../models/Instructor');
 
 // @desc Upload photo for student
 //@route PUT /api/v1/user/photo
@@ -14,8 +14,8 @@ exports.userPhotoUpload = asynchandler(async (req, res, next) => {
   let account;
   if (req.user.role === 'student') {
     account = await Student.find({ _id: req.userrole });
-  } else if (req.user.role === 'teacher') {
-    account = await Teacher.find({ _id: req.userrole });
+  } else if (req.user.role === 'instructor') {
+    account = await Instructor.find({ _id: req.userrole });
   }
 
   if (!account || !account[0].user) {
@@ -74,8 +74,8 @@ exports.updateUser = asynchandler(async (req, res, next) => {
     let account;
     if (req.user.role === 'student') {
       account = await Student.find({ _id: req.userrole });
-    } else if (req.user.role === 'teacher') {
-      account = await Teacher.find({ _id: req.userrole });
+    } else if (req.user.role === 'instructor') {
+      account = await Instructor.find({ _id: req.userrole });
     }
 
     if (!account || account.length <= 0) {

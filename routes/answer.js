@@ -7,6 +7,6 @@ const { protect, authorize } = require('../middleware/auth');
 //router.route('/').get(protect, getQuestions);
 router
   .route('/answerquestion')
-  .put(protect, authorize('teacher'), answerQuestion);
+  .put(protect, authorize('instructor'), answerQuestion);
 
 module.exports = router;
