@@ -229,7 +229,6 @@ exports.login = asynchandler(async (req, res, next) => {
   //Check for user
   const user = await User.findOne({ email }).select('+password');
   console.log(user, 'checking if user exist');
-  const userrole = await getuserRoleId(user);
 
   if (!user) {
     return next(
@@ -237,6 +236,7 @@ exports.login = asynchandler(async (req, res, next) => {
     );
   }
 
+  const userrole = await getuserRoleId(user);
   // Check if password matches
   const isMatch = await user.matchPassword(password);
 
