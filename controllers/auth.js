@@ -176,7 +176,8 @@ exports.resendResetCode = asynchandler(async (req, res, next) => {
     req.user._id,
     {
       resetPasswordCode,
-      resetPasswordExpire
+      resetPasswordExpire,
+      resetPasswordVerification: false
     },
     { new: true }
   );
@@ -294,6 +295,23 @@ exports.updatePassword = asynchandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res, userrole);
 });
 
+// @desc Update password after Reset Code
+//@route PUT /api/v1/auth/updatepasswordaftercode
+// @access Private
+exports.updatePasswordAfterCode = asynchandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select('+password');
+
+  if (user.resetPasswordVerification) {
+    const userrole = await getuserRoleId(user);
+    user.password = req.body.newPassword;
+    await user.save();
+
+    sendTokenResponse(user, 200, res, userrole);
+  } else {
+    return next(new ErrorResponse('Reset Code is invalid', 401));
+  }
+});
+
 // @desc Forgot password
 //@route POST /api/v1/auth/forgotpassword
 // @access Public
@@ -309,7 +327,8 @@ exports.forgetPassword = asynchandler(async (req, res, next) => {
     account._id,
     {
       resetPasswordCode,
-      resetPasswordExpire
+      resetPasswordExpire,
+      resetPasswordVerification: false
     },
     { new: true }
   );
@@ -334,6 +353,7 @@ exports.forgetPassword = asynchandler(async (req, res, next) => {
     console.log(err);
     user.resetPasswordCode = undefined;
     user.resetPasswordExpire = undefined;
+    user.resetPasswordVerification = false;
     await user.save();
 
     return next(new ErrorResponse(`Email could not be sent`, 500));
@@ -367,6 +387,7 @@ exports.verifyResetCode = asynchandler(async (req, res, next) => {
 
       user.resetPasswordCode = undefined;
       user.resetPasswordExpire = undefined;
+      user.resetPasswordVerification = true;
 
       await user.save();
       sendTokenResponse(user, 200, res, userrole);

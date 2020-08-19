@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {
   register,
   login,
-  getMe,
+  updatePasswordAfterCode,
   forgetPassword,
   resetPassword,
   verifyResetCode,
@@ -27,4 +27,5 @@ router.post('/verifyresetcode', protect, verifyResetCode);
 router.put('/verifyemail', protect, verifyEmail);
 router.put('/resendverificationcode', protect, resendVerificationCode);
 router.put('/resendresetcode', protect, resendResetCode);
+router.put('/updatepasswordaftercode', protect, updatePasswordAfterCode);
 module.exports = router;
