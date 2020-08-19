@@ -13,7 +13,11 @@ const userSchema = new mongoose.Schema({
   },
   mobilenumber: {
     type: String,
-    default: ''
+    default: '',
+    match: [
+      /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g,
+      'Please enter a correct phone number format'
+    ]
   },
   email: {
     type: String,
@@ -53,7 +57,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Please add a password'],
-    minlength: 6,
+    match: [
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,20}$/,
+      'Please add a password containing 8-20 characters, 1 number, 1 uppercase letter,1 uppercase letter and one special character'
+    ],
     select: false
   },
   verification: {
@@ -63,7 +70,7 @@ const userSchema = new mongoose.Schema({
 
   emailVerificationCode: String,
   emailVerificationExpire: String,
-  resetPasswordToken: String,
+  resetPasswordCode: String,
   resetPasswordExpire: Date,
   createdAt: {
     type: Date,

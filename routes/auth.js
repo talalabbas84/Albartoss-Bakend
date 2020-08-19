@@ -6,10 +6,12 @@ const {
   getMe,
   forgetPassword,
   resetPassword,
-  updateDetails,
+  verifyResetCode,
   updatePassword,
   logout,
-  verifyEmail
+  verifyEmail,
+  resendVerificationCode,
+  resendResetCode
 } = require('../controllers/auth');
 
 const { protect } = require('../middleware/auth');
@@ -19,8 +21,10 @@ router.post('/login', login);
 // router.get('/logout', logout);
 // router.get('/me', protect, getMe);
 // router.put('/updatedetails', protect, updateDetails);
-// router.put('/updatepassword', protect, updatePassword);
-// router.post('/forgotpassword', forgetPassword);
-// router.get('/resetpassword/:resettoken', resetPassword);
+router.put('/updatepassword', protect, updatePassword);
+router.post('/forgotpassword', forgetPassword);
+router.post('/verifyresetcode', protect, verifyResetCode);
 router.put('/verifyemail', protect, verifyEmail);
+router.put('/resendverificationcode', protect, resendVerificationCode);
+router.put('/resendresetcode', protect, resendResetCode);
 module.exports = router;

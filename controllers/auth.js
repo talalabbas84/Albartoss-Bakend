@@ -78,7 +78,7 @@ exports.register = asynchandler(async (req, res, next) => {
       console.log(err);
       user.resetPasswordExpire = undefined;
       user.emailVerificationCode = undefined;
-      await user.remove();
+      await user.save();
 
       return next(new ErrorResponse(`Email could not be sent`, 500));
     }
@@ -91,21 +91,6 @@ exports.register = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/auth/verifyemail
 // @access Public
 exports.verifyEmail = asynchandler(async (req, res, next) => {
-  // Get hashed token
-  // const emailVerificationCode = crypto
-  //   .createHash('sha256')
-  //   .update(req.params.verifytoken)
-  //   .digest('hex');
-
-  //const userid = mongoose.Types.ObjectId(req.params.userid);
-
-  // const user = await User.findOne({
-  //   //emailVerificationCode: req.params.verifytoken.toString()
-  //   _id: userid
-  //   // emailVerificationExpire: { $gt: Date.now() }
-  // });
-  // email = req.params.email.trim();
-
   const user = await User.findOne({ email: req.user.email }).select(
     '-password'
   );
@@ -129,6 +114,102 @@ exports.verifyEmail = asynchandler(async (req, res, next) => {
     sendTokenResponse(user, 200, res, userrole);
   } else {
     return next(new ErrorResponse('Invalid Verification Code', 400));
+  }
+});
+
+// @desc Resend Email Verification
+//@route PUT /api/v1/auth/resendverificationcode
+// @access Private
+exports.resendVerificationCode = asynchandler(async (req, res, next) => {
+  const emailVerificationCode = Math.floor(1000 + Math.random() * 9000);
+  const emailVerificationExpire = Date.now() + 10 * 60 * 1000;
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      emailVerificationCode: emailVerificationCode,
+      emailVerificationExpire: emailVerificationExpire
+    },
+    { new: true }
+  );
+
+  const userrole = await getuserRoleId(user);
+  if (req.user) {
+    // Sending email to verify the email
+
+    // const VerificationUrl = `${req.protocol}://${req.get(
+    //   'host'
+    // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
+
+    const message = `You are receiving this email because you
+     (or someone else) has made an account with this email.
+     Your verfication code is \n\n ${emailVerificationCode}
+    `;
+
+    try {
+      await sendEmail({
+        email: req.user.email,
+        subject: 'Email Verification',
+        message
+      });
+      user.password = '';
+      sendTokenResponse(user, 200, res, userrole);
+    } catch (err) {
+      console.log(err);
+      user.emailVerificationExpire = undefined;
+      user.emailVerificationCode = undefined;
+      await user.save();
+
+      return next(new ErrorResponse(`Email could not be sent`, 500));
+    }
+  }
+});
+
+// @desc Resend Reset Verification code
+//@route PUT /api/v1/auth/resendresetcode
+// @access Private
+exports.resendResetCode = asynchandler(async (req, res, next) => {
+  const resetPasswordCode = Math.floor(1000 + Math.random() * 9000);
+  const resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      resetPasswordCode,
+      resetPasswordExpire
+    },
+    { new: true }
+  );
+
+  const userrole = await getuserRoleId(user);
+  if (req.user) {
+    // Sending email to verify the email
+
+    // const VerificationUrl = `${req.protocol}://${req.get(
+    //   'host'
+    // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
+
+    const message = `You are receiving this email because you
+    (or someone else) has requested the reset of a password.
+     Here is your reset password verification code \n\n ${resetPasswordCode}
+    `;
+
+    try {
+      await sendEmail({
+        email: req.user.email,
+        subject: 'Reset Password Code',
+        message
+      });
+      user.password = '';
+      sendTokenResponse(user, 200, res, userrole);
+    } catch (err) {
+      console.log(err);
+      user.resetPasswordExpire = undefined;
+      user.resetPasswordCode = undefined;
+      await user.save();
+
+      return next(new ErrorResponse(`Email could not be sent`, 500));
+    }
   }
 });
 
@@ -195,107 +276,106 @@ exports.getMe = asynchandler(async (req, res) => {
   });
 });
 
-// @desc Update user details
-//@route PUT /api/v1/auth/updatedetails
-// @access Private
-exports.updateDetails = asynchandler(async (req, res) => {
-  const fieldsToUpdate = {
-    name: req.body.name,
-    email: req.body.email
-  };
-
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-    new: true,
-    runValidators: true
-  });
-
-  res.status(200).json({
-    success: true,
-    data: user
-  });
-});
 // @desc Update password
 //@route PUT /api/v1/auth/updatepassword
 // @access Private
 exports.updatePassword = asynchandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('-password');
+  const user = await User.findById(req.user._id).select('+password');
 
   //Check current password
   if (!(await user.matchPassword(req.body.currentPassword))) {
     return next(new ErrorResponse('Password is incorrect', 401));
   }
 
+  const userrole = await getuserRoleId(user);
   user.password = req.body.newPassword;
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res, userrole);
 });
 
 // @desc Forgot password
 //@route POST /api/v1/auth/forgotpassword
 // @access Public
 exports.forgetPassword = asynchandler(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) {
+  const account = await User.findOne({ email: req.body.email });
+  console.log(account);
+  if (!account) {
     return next(new ErrorResponse('There is no user with that email', 404));
   }
+  const resetPasswordCode = Math.floor(1000 + Math.random() * 9000);
+  const resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  const user = await User.findByIdAndUpdate(
+    account._id,
+    {
+      resetPasswordCode,
+      resetPasswordExpire
+    },
+    { new: true }
+  );
+  const userrole = await getuserRoleId(user);
 
-  // Get reset token
-  const resetToken = user.getResetPasswordToken();
-
-  await user.save({ validateBeforeSave: false });
-
-  // Create reset url
-  const resetUrl = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/auth/resetpassword/${resetToken} `;
+  // Sending email to verify the email
 
   const message = `You are receiving this email because you
-     (or someone else) has requested the reset of a password.
-      Please make a PUT request to: \n\n ${resetUrl}`;
+    (or someone else) has requested the reset of a password.
+     Here is your reset password verification code \n\n ${resetPasswordCode}
+    `;
 
   try {
     await sendEmail({
       email: user.email,
-      subject: 'Password reset token',
+      subject: 'Reset Password Code',
       message
     });
-    res.status(200).json({ success: true, data: 'Email sent' });
+    user.password = '';
+    sendTokenResponse(user, 200, res, userrole);
   } catch (err) {
     console.log(err);
+    user.resetPasswordCode = undefined;
     user.resetPasswordExpire = undefined;
-    user.resetPasswordToken = undefined;
-    await user.remove();
+    await user.save();
 
     return next(new ErrorResponse(`Email could not be sent`, 500));
   }
 });
 
-// @desc Reset password
-//@route PUT /api/v1/auth/resetpassword/:resettoken
+// @desc Verify Reset Code
+//@route POST /api/v1/auth/verifyresetcode
 // @access Public
-exports.resetPassword = asynchandler(async (req, res, next) => {
+exports.verifyResetCode = asynchandler(async (req, res, next) => {
   // Get hashed token
-  const resetPasswordToken = crypto
-    .createHash('sha256')
-    .update(req.params.resettoken)
-    .digest('hex');
+  if (req.user) {
+    const user = await User.findOne({ email: req.user.email }).select(
+      '-password'
+    );
 
-  const user = await User.findOne({
-    resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() }
-  });
+    const userrole = await getuserRoleId(user);
 
-  if (!user) {
-    return next(new ErrorResponse('Invalid Token', 400));
+    if (!user) {
+      return next(new ErrorResponse('User doesnt exist', 400));
+    }
+
+    if (
+      user.resetPasswordCode &&
+      user.resetPasswordCode &&
+      user.resetPasswordCode.toString() ===
+        req.body.resetPasswordCode.toString() &&
+      user.resetPasswordExpire > Date.now()
+    ) {
+      // Verify the  account
+
+      user.resetPasswordCode = undefined;
+      user.resetPasswordExpire = undefined;
+
+      await user.save();
+      sendTokenResponse(user, 200, res, userrole);
+    } else {
+      return next(new ErrorResponse('Invalid Reset Verification Code', 400));
+    }
+  } else {
+    return next(new ErrorResponse('User doesnt exist', 400));
   }
-
-  // Set new password
-  user.password = req.body.password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
-  await user.save();
-  sendTokenResponse(user, 200, res);
 });
 
 // Get token from model, create cookie and send response
