@@ -84,13 +84,6 @@ exports.answerQuestion = asynchandler(async (req, res, next) => {
     );
   }
 
-  const answer = await Answer.create({
-    description: req.body.description,
-    user: req.user._id,
-    questionID: req.body.questionID
-  });
-  console.log(answer);
-
   const question = await Question.findByIdAndUpdate(
     req.body.questionID,
     { $push: { answer: answer._id } },
@@ -99,6 +92,17 @@ exports.answerQuestion = asynchandler(async (req, res, next) => {
       runValidators: true
     }
   );
+
+  if (!question) {
+    return next(new ErrorResponse(`Answer isnt saved`, 401));
+  }
+
+  const answer = await Answer.create({
+    description: req.body.description,
+    user: req.user._id,
+    questionID: req.body.questionID
+  });
+  console.log(answer);
 
   console.log(question);
   res.status(200).json({
