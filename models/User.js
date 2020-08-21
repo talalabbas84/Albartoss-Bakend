@@ -3,21 +3,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userSchema = new mongoose.Schema({
-  firstname: {
+  name: {
     type: String,
-    required: [true, 'Please add your first name']
-  },
-  lastname: {
-    type: String,
-    required: [true, 'Please add your last name']
-  },
-  mobilenumber: {
-    type: String,
-    default: '',
-    match: [
-      /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g,
-      'Please enter a correct phone number format'
-    ]
+    required: [true, 'Please add your  name']
   },
   email: {
     type: String,
@@ -28,32 +16,11 @@ const userSchema = new mongoose.Schema({
       'Please add a valid email'
     ]
   },
-  streetNo: {
-    type: String,
-    default: ''
-  },
-  houseNo: {
-    type: String,
-    default: ''
-  },
-  city: { type: String, default: '' },
-  postalCode: {
-    type: String,
-    default: ''
-  },
   role: {
     type: String,
-    enum: ['student', 'instructor'],
-    default: 'student'
+    enum: ['instructor', 'student']
   },
-  dateOfBirth: {
-    type: String,
-    default: ''
-  },
-  photo: {
-    type: String,
-    default: 'no-photo.jpg'
-  },
+
   password: {
     type: String,
     required: [true, 'Please add a password'],
@@ -90,11 +57,7 @@ userSchema.pre('save', async function (next) {
 
 // Sign JWT and return
 userSchema.methods.getSignedJwtToken = function (userrole) {
-  console.log('check the jwt token');
-  console.log(userrole, 'checling if userole exist in jwt token');
-
   if (userrole.length > 0) {
-    console.log(userrole[0]._id, 'user role');
     return jwt.sign(
       { id: this._id, user: userrole[0]._id },
       process.env.JWT_SECRET,
@@ -103,7 +66,6 @@ userSchema.methods.getSignedJwtToken = function (userrole) {
       }
     );
   } else {
-    console.log(userrole._id, 'user role');
     return jwt.sign(
       { id: this._id, user: userrole._id },
       process.env.JWT_SECRET,

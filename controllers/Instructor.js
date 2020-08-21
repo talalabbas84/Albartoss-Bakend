@@ -68,37 +68,53 @@ exports.addInstructor = asynchandler(async (req, res, next) => {
   // });
 });
 
-// @desc Update Instructor
-//@route PUT /api/v1/instructor/:id
+//@desc Edit Instructor Profile
+//@route PUT /api/v1/instructor/editprofile
 // @access Private
-exports.updateInstructor = asynchandler(async (req, res, next) => {
-  let instructor = await Instructor.find({ _id: req.userrole });
+exports.editProfile = asynchandler(async (req, res, next) => {
+  console.log(req.user);
+  console.log(req.userrole);
+  if (req.user) {
+    let account;
 
-  if (!instructor || instructor.length <= 0) {
-    return next(
-      new ErrorResponse(`No instructor witht the id of ${req.userrole}`),
-      404
+    account = await Instructor.find({
+      _id: req.userrole
+    });
+
+    console.log(account, 'account');
+
+    if (!account || account.length <= 0) {
+      return next(
+        new ErrorResponse(`No User witht the id of ${req.userrole}`),
+        404
+      );
+    }
+    // Make sure user is course owner
+    // if (
+    //   student[0].user.toString() !== req.user.id &&
+    //   req.user.role !== 'student'
+    // ) {
+    //   return next(
+    //     new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
+    //   );
+    // }
+
+    account = await Instructor.findByIdAndUpdate(
+      account[0]._id,
+      req.body.user,
+      {
+        new: true,
+        runValidators: true
+      }
     );
-  }
-  // Make sure user is course owner
-  if (
-    instructor[0].user.toString() !== req.user.id &&
-    req.user.role !== 'instructor'
-  ) {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
-    );
-  }
 
-  instructor = await User.findByIdAndUpdate(req.user._id, req.body.user, {
-    new: true,
-    runValidators: true
-  });
-
-  res.status(200).json({
-    success: true,
-    user: instructor
-  });
+    res.status(200).json({
+      success: true,
+      user: account
+    });
+  } else {
+    return next(new ErrorResponse(`Please Sign into the application.`), 404);
+  }
 });
 
 // @desc Upload photo for instructor
@@ -152,7 +168,7 @@ exports.instructorPhotoUpload = asynchandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.user._id, {
       photo: file.name
     });
-    console.log(user);
+
     return res.status(200).json({ success: true, data: file.name, user });
   });
 });

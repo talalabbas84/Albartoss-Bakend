@@ -72,11 +72,6 @@ exports.getQuestions = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/answer/answerquestion
 // @access Private
 exports.answerQuestion = asynchandler(async (req, res, next) => {
-  console.log(req.user._id);
-  req.body.user = req.user._id;
-  console.log('coming here');
-  console.log(req.user);
-
   // Make sure user is course owner
   if (req.user.role !== 'instructor') {
     return next(
@@ -102,9 +97,7 @@ exports.answerQuestion = asynchandler(async (req, res, next) => {
     user: req.user._id,
     questionID: req.body.questionID
   });
-  console.log(answer);
 
-  console.log(question);
   res.status(200).json({
     success: true,
     data: question,

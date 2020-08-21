@@ -2,53 +2,35 @@ const mongoose = require('mongoose');
 
 const instructorSchema = new mongoose.Schema(
   {
-    title: String,
-    firstname: {
-      type: String,
-      required: true
-    },
-    lastname: {
-      type: String,
-      required: true
-    },
     photo: {
       type: String,
       default: 'no-photo.jpg'
     },
-    address: {
-      type: String
+    name: {
+      type: String,
+      required: true
     },
-    dateOfBirth: Date,
-    mobilenumber: String,
-
-    education: {
-      type: String
-    },
-    languages: {
+    dexterity: {
       type: [String]
     },
-    chargePerHour: {
-      type: Number
-    },
-    bio: {
+    timeZone: {
       type: String
     },
-    hoursLoggedIn: {
-      type: Number
-    },
-    noOfQuestionsAnswered: Number,
-    timeAvailibilty: {
+    language: {
       type: [String]
     },
-    myExperience: {
+    typeOfLessonsOffered: [String],
+    description: {
       type: String
     },
-    howIWouldTutorYou: {
+    courseAffiliation: {
       type: String
     },
-    createdAt: {
-      type: Date,
-      default: Date.now
+    rate: {
+      type: Number
+    },
+    availableTimeSlots: {
+      type: [String]
     },
     user: {
       type: mongoose.Schema.ObjectId,

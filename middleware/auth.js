@@ -7,7 +7,7 @@ const User = require('../models/User');
 //Protect routes
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
-  console.log(req.headers.authorization);
+
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -25,11 +25,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
   try {
     //Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded, 'decoded');
     req.userrole = decoded.user;
-    console.log(decoded.id, 'decoded id');
     req.user = await User.findById(decoded.id);
-    console.log(req.user, 'req userrr');
     next();
   } catch (err) {
     return next(new ErrorResponse('Not authorize to access this route', 401));

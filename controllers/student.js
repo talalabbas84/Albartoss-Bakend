@@ -27,7 +27,7 @@ const Instructor = require('../models/Instructor');
 
 // @desc Get single student
 // @route GET /api/v1/student/:id
-// @access Pulic
+// @access Private
 exports.getStudent = asynchandler(async (req, res, next) => {
   const student = await Student.findById(req.params.id).populate({
     path: 'user',
@@ -45,6 +45,49 @@ exports.getStudent = asynchandler(async (req, res, next) => {
     count: student.length,
     data: student
   });
+});
+
+//@desc Edit Student Profile
+//@route PUT /api/v1/student/editprofile
+// @access Private
+exports.editProfile = asynchandler(async (req, res, next) => {
+  console.log(req.user);
+  console.log(req.userrole);
+  if (req.user) {
+    let account;
+
+    account = await Student.find({ _id: req.userrole });
+
+    console.log(account, 'account');
+
+    if (!account || account.length <= 0) {
+      return next(
+        new ErrorResponse(`No User witht the id of ${req.userrole}`),
+        404
+      );
+    }
+    // Make sure user is course owner
+    // if (
+    //   student[0].user.toString() !== req.user.id &&
+    //   req.user.role !== 'student'
+    // ) {
+    //   return next(
+    //     new ErrorResponse(`User ${req.user.id} is not authorized to update`, 401)
+    //   );
+    // }
+
+    account = await Student.findByIdAndUpdate(account[0]._id, req.body.user, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({
+      success: true,
+      user: account
+    });
+  } else {
+    return next(new ErrorResponse(`Please Sign into the application.`), 404);
+  }
 });
 
 // // @desc Add Student

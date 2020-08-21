@@ -61,7 +61,7 @@ exports.userPhotoUpload = asynchandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.user._id, {
       photo: file.name
     });
-    console.log(user);
+
     return res.status(200).json({ success: true, data: file.name, user });
   });
 });

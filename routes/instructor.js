@@ -2,23 +2,22 @@ const router = require('express').Router();
 
 const {
   addInstructor,
-  updateInstructor,
+
   getInstructor,
-  instructorPhotoUpload
+  instructorPhotoUpload,
+  editProfile
 } = require('../controllers/Instructor');
 
 const { protect, authorize } = require('../middleware/auth');
 
 router.route('/:id').get(getInstructor);
 
-router
-  .route('/addinstructor')
+// router
+//   .route('/addinstructor')
 
-  .post(protect, authorize('instructor'), addInstructor);
+//   .post(protect, authorize('instructor'), addInstructor);
 
-router
-  .route('/updateinstructor')
-  .put(protect, authorize('instructor'), updateInstructor);
+router.route('/editprofile').put(protect, authorize('instructor'), editProfile);
 
 router.route('/photo').put(protect, instructorPhotoUpload);
 

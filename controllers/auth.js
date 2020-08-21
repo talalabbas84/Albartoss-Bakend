@@ -11,16 +11,13 @@ const asynchandler = require(`../middleware/async`);
 //@route POST /api/v1/auth/register
 // @access Public
 exports.register = asynchandler(async (req, res, next) => {
-  console.log('coming to register controller');
-  console.log(req.body);
-  const { email, password, role, mobilenumber, firstname, lastname } = req.body;
+  const { email, password, role, mobilenumber, name } = req.body;
 
   const emailVerificationCode = Math.floor(1000 + Math.random() * 9000);
 
   //Create user
   const user = await User.create({
-    firstname,
-    lastname,
+    name,
     email,
     password,
     role,
@@ -30,33 +27,29 @@ exports.register = asynchandler(async (req, res, next) => {
     emailVerificationExpire: Date.now() + 10 * 60 * 1000
   });
 
-  let instructor;
-  let student;
+  let account;
 
   if (role === 'instructor') {
-    instructor = await Instructor.create({
-      firstname,
+    account = await Instructor.create({
+      name,
       mobilenumber,
-      lastname,
       user: user._id
     });
   } else if (role === 'student') {
-    student = await Student.create({
-      firstname,
-      lastname,
+    account = await Student.create({
+      name,
+      mobilenumber,
       user: user._id
     });
   }
-  console.log(user);
-  const userrole = await getuserRoleId(user);
+
+  const userrole = account;
 
   //var val = Math.floor(1000 + Math.random() * 9000);
 
   if (user) {
     // Sending email to verify the email
 
-    console.log(req.protocol);
-    console.log(req.get('host'));
     // const VerificationUrl = `${req.protocol}://${req.get(
     //   'host'
     // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
@@ -72,13 +65,13 @@ exports.register = asynchandler(async (req, res, next) => {
         subject: 'Email Verification',
         message
       });
-      user.password = '';
+
       sendTokenResponse(user, 200, res, userrole);
     } catch (err) {
       console.log(err);
       user.resetPasswordExpire = undefined;
       user.emailVerificationCode = undefined;
-      await user.save();
+      await user.remove();
 
       return next(new ErrorResponse(`Email could not be sent`, 500));
     }
@@ -94,7 +87,7 @@ exports.verifyEmail = asynchandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.user.email }).select(
     '-password'
   );
-  console.log(user);
+
   const userrole = await getuserRoleId(user);
 
   if (!user) {
@@ -182,7 +175,7 @@ exports.resendResetCode = asynchandler(async (req, res, next) => {
     { new: true }
   );
 
-  const userrole = await getuserRoleId(user);
+  //const userrole = await getuserRoleId(user);
   if (req.user) {
     // Sending email to verify the email
 
@@ -207,7 +200,7 @@ exports.resendResetCode = asynchandler(async (req, res, next) => {
       console.log(err);
       user.resetPasswordExpire = undefined;
       user.resetPasswordCode = undefined;
-      await user.save();
+      await user.remove();
 
       return next(new ErrorResponse(`Email could not be sent`, 500));
     }
@@ -218,7 +211,6 @@ exports.resendResetCode = asynchandler(async (req, res, next) => {
 //@route POST /api/v1/auth/login
 // @access Public
 exports.login = asynchandler(async (req, res, next) => {
-  console.log(req.body);
   const { email, password } = req.body;
 
   //Validate email & password
@@ -228,7 +220,6 @@ exports.login = asynchandler(async (req, res, next) => {
 
   //Check for user
   const user = await User.findOne({ email }).select('+password');
-  console.log(user, 'checking if user exist');
 
   if (!user) {
     return next(
@@ -237,6 +228,7 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   const userrole = await getuserRoleId(user);
+
   // Check if password matches
   const isMatch = await user.matchPassword(password);
 
@@ -245,7 +237,6 @@ exports.login = asynchandler(async (req, res, next) => {
   }
 
   user.password = '';
-  console.log(userrole, 'checking if user role exist');
 
   sendTokenResponse(user, 200, res, userrole);
 });
@@ -317,7 +308,7 @@ exports.updatePasswordAfterCode = asynchandler(async (req, res, next) => {
 // @access Public
 exports.forgetPassword = asynchandler(async (req, res, next) => {
   const account = await User.findOne({ email: req.body.email });
-  console.log(account);
+
   if (!account) {
     return next(new ErrorResponse('There is no user with that email', 404));
   }
@@ -401,7 +392,6 @@ exports.verifyResetCode = asynchandler(async (req, res, next) => {
 
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res, userrole) => {
-  console.log(userrole, 'checking if user role exist in token');
   //Create token
   const token = user.getSignedJwtToken(userrole);
 
@@ -422,7 +412,6 @@ const sendTokenResponse = (user, statusCode, res, userrole) => {
 };
 
 const getuserRoleId = async user => {
-  console.log(user, 'roleees');
   let userrole;
   if (user.role === 'student') {
     userrole = await Student.find({ user: user._id });
