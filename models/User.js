@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
       'Please add a valid email'
     ]
   },
+  mobilenumber: String,
   role: {
     type: String,
     enum: ['instructor', 'student']
