@@ -6,6 +6,9 @@ const Student = require(`../models/Student`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const sendEmail = require(`../utils/sendEmail`);
 const asynchandler = require(`../middleware/async`);
+const passport = require('passport');
+const { google } = require('googleapis');
+const GoogleCalendar = require('../models/GoogleCalendar');
 
 //@desc Register user
 //@route POST /api/v1/auth/register
@@ -388,6 +391,88 @@ exports.verifyResetCode = asynchandler(async (req, res, next) => {
   } else {
     return next(new ErrorResponse('User doesnt exist', 400));
   }
+});
+// @desc Authentication with google
+//@route POST /api/v1/auth/google
+// @access Public
+
+exports.googleAuth = asynchandler(async (req, res, next) => {
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.googleClientID,
+    process.env.googleClientSecret,
+    process.env.googleRedirectedURL
+  );
+
+  // generate a url that asks permissions for Blogger and Google Calendar scopes
+  const scopes = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events'
+  ];
+
+  let url = oauth2Client.generateAuthUrl({
+    // 'online' (default) or 'offline' (gets refresh_token)
+    access_type: 'offline',
+
+    // If you only need one scope you can pass it as a string
+    scope: scopes,
+    state: JSON.stringify({ id: `${req.user._id}` })
+  });
+  url = url + `&user.id=${req.user._id}`;
+  return res.status(200).json({
+    success: true,
+    url: url
+  });
+  // res.redirect(url);
+});
+exports.callbackURL = asynchandler(async (req, res, next) => {
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.googleClientID,
+    process.env.googleClientSecret,
+    process.env.googleRedirectedURL
+  );
+  console.log(JSON.parse(req.query.state).id);
+
+  const { tokens } = await oauth2Client.getToken(req.query.code);
+  const googleCalendar = await GoogleCalendar.create({
+    tokens,
+    user: JSON.parse(req.query.state).id
+  });
+  console.log(googleCalendar);
+  console.log(tokens);
+  oauth2Client.setCredentials(tokens);
+  listEvents(oauth2Client);
+  function listEvents(auth) {
+    const calendar = google.calendar({ version: 'v3', auth });
+    calendar.events.list(
+      {
+        calendarId: 'primary',
+        timeMin: new Date().toISOString(),
+        maxResults: 10,
+        singleEvents: true,
+        orderBy: 'startTime'
+      },
+      (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        const events = res.data.items;
+        if (events.length) {
+          console.log(events);
+          console.log('Upcoming 10 events:');
+          events.map((event, i) => {
+            const start = event.start.dateTime || event.start.date;
+            console.log(`${start} - ${event.summary}`);
+          });
+        } else {
+          console.log('No upcoming events found.');
+        }
+      }
+    );
+  }
+  return res.status(200).json({
+    success: true,
+    googleCalendar: googleCalendar
+  });
+
+  // res.redirect(url);
 });
 
 // Get token from model, create cookie and send response

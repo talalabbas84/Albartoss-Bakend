@@ -18,6 +18,7 @@ const connectDb = require(`./config/db`);
 const errorHandler = require(`./middleware/error`);
 
 dotenv.config({ path: './config/config.env' });
+require('./services/passport');
 const auth = require(`./routes/auth`);
 const instructor = require('./routes/instructor');
 const student = require('./routes/student');
@@ -26,6 +27,7 @@ const question = require('./routes/question');
 const answer = require('./routes/answer');
 const user = require('./routes/user');
 const lesson = require(`./routes/lesson`);
+const passport = require('passport');
 
 // if (cluster.isMaster) {
 //   cluster.fork();
@@ -76,6 +78,9 @@ app.use(cors());
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Mount routers
 

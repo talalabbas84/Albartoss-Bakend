@@ -17,7 +17,7 @@ router
   .get(protect, authorize('instructor'), getLessonRequest);
 
 router
-  .route('/lessonstatus')
+  .route('/lessonstatus/:id')
   .post(protect, authorize('instructor'), lessonStatus);
 
 router.route('/getlessonsbyView').get(protect, getLessonsByView);

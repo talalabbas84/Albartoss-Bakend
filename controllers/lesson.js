@@ -7,14 +7,14 @@ const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 const asyncHandler = require('../middleware/async');
 const Instructor = require('../models/Instructor');
+const GoogleCalendar = require('../models/GoogleCalendar');
+const { google } = require('googleapis');
 
 // @desc Book a Lesson
 //@route POST /api/v1/lesson/booklesson
 // @access Private Student
 exports.bookLesson = asynchandler(async (req, res, next) => {
-  console.log(req.user, 'req userrr');
   req.body.lesson.lessonAssignedBy = req.user._id;
-  console.log(req.userrole);
 
   // Make sure user is course owner
   if (req.user.role !== 'student') {
@@ -33,9 +33,7 @@ exports.bookLesson = asynchandler(async (req, res, next) => {
 //@route GET /api/v1/lesson/getscheduledlesson
 // @access Private (acccess to both student and teacher)
 exports.getScheduledLesson = asynchandler(async (req, res, next) => {
-  console.log(req.user, 'req userrr');
   req.body.lesson.lessonAssignedBy = req.user._id;
-  console.log(req.userrole);
 
   // Make sure user is course owner
   if (req.user.role !== 'student') {
@@ -54,10 +52,6 @@ exports.getScheduledLesson = asynchandler(async (req, res, next) => {
 // @route GET /api/v1/lesson/getlessonrequest
 //@access Private Teacher
 exports.getLessonRequest = asynchandler(async (req, res, next) => {
-  console.log(req.user, 'req userrr');
-  //req.body.lesson.lessonAssignedBy = req.user._id;
-  console.log(req.userrole);
-
   // Make sure user is course owner
   if (req.user.role !== 'instructor') {
     return next(
@@ -77,13 +71,9 @@ exports.getLessonRequest = asynchandler(async (req, res, next) => {
 });
 
 // @desc Accept or decline the request
-// @route POST /api/v1/lesson/lessonstatus
+// @route POST /api/v1/lesson/lessonstatus/:id
 //@access Private Teacher
 exports.lessonStatus = asynchandler(async (req, res, next) => {
-  console.log(req.user, 'req userrr');
-  //req.body.lesson.lessonAssignedBy = req.user._id;
-  console.log(req.userrole);
-
   // Make sure user is course owner
   if (req.user.role !== 'instructor') {
     return next(
@@ -93,7 +83,10 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
   let lesson;
 
   if (req.body.lessonBookStatus === 'accept') {
+    const googleCalendar = await GoogleCalendar.find({ user: req.user._id });
+
     lesson = await Lesson.findByIdAndUpdate(
+      req.params.id,
       {
         lessonBookStatus: req.body.lessonBookStatus,
         requested: false
@@ -103,7 +96,62 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
         new: true,
         runValidators: true
       }
-    );
+    ).populate('lessonAssignedBy lessonAssignedTo');
+    console.log(lesson);
+    if (googleCalendar) {
+      const event = {
+        summary: `Albartoss Lesson${lesson.lessonStarTime}-${lesson.lessonEndTime}`,
+
+        description: `${lesson.description}`,
+        start: {
+          dateTime: '2015-05-28T09:00:00-07:00',
+          timeZone: 'America/Los_Angeles'
+        },
+        end: {
+          dateTime: '2015-05-28T17:00:00-07:00',
+          timeZone: 'America/Los_Angeles'
+        },
+        recurrence: ['RRULE:FREQ=DAILY;COUNT=2'],
+        attendees: [
+          { email: 'lpage@example.com' },
+          { email: 'sbrin@example.com' }
+        ],
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 24 * 60 },
+            { method: 'popup', minutes: 10 }
+          ]
+        }
+      };
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.googleClientID,
+        process.env.googleClientSecret,
+        process.env.googleRedirectedURL
+      );
+      oauth2Client.setCredentials(googleCalendar[0].tokens);
+      const calendar = google.calendar({ version: 'v3', oauth2Client });
+      await calendar.events.insert(
+        {
+          auth: oauth2Client,
+          calendarId: 'primary',
+          resource: event
+        },
+        function (err, event) {
+          if (err) {
+            console.log(err);
+            console.log(err.data);
+            console.log(
+              'There was an error contacting the Calendar service: ' + err
+            );
+            return;
+          }
+          console.log(event, 'eventttttttttttttt');
+          console.log('Event created: %s', event.htmlLink);
+        }
+      );
+      console.log(googleCalendar);
+    }
   } else if (req.body.lessonBookStatus === 'decline') {
     lesson = await Lesson.findByIdAndUpdate(
       {
@@ -135,7 +183,6 @@ exports.getLessonsByView = asynchandler(async (req, res, next) => {
   if (req.body.view === 'week') {
     testlesssons = lessons.map(lesson => {
       const date = moment(lesson.lessonDate).format('YYYY-M-D');
-      console.log(getWeekOfMonth(new Date(date)));
 
       const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
 
@@ -147,9 +194,6 @@ exports.getLessonsByView = asynchandler(async (req, res, next) => {
     });
   } else if (req.body.view === 'day') {
     testlesssons = lessons.map(lesson => {
-      console.log(lesson.lessonDate);
-      console.log(moment(lesson.lessonDate).format('D/M/YYYY'));
-
       const day = moment(lesson.lessonDate)
         .format('D/MM/YYYY')
         .toString()

@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['instructor', 'student']
   },
+  googleId: String,
 
   password: {
     type: String,

@@ -51,14 +51,10 @@ exports.getStudent = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/student/editprofile
 // @access Private
 exports.editProfile = asynchandler(async (req, res, next) => {
-  console.log(req.user);
-  console.log(req.userrole);
   if (req.user) {
     let account;
 
     account = await Student.find({ _id: req.userrole });
-
-    console.log(account, 'account');
 
     if (!account || account.length <= 0) {
       return next(

@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const passport = require('passport');
+const { google } = require('googleapis');
 
 const {
   register,
@@ -6,9 +8,11 @@ const {
   updatePasswordAfterCode,
   forgetPassword,
   resetPassword,
+  callbackURL,
   verifyResetCode,
   updatePassword,
   logout,
+  googleAuth,
   verifyEmail,
   resendVerificationCode,
   resendResetCode
@@ -28,4 +32,7 @@ router.put('/verifyemail', protect, verifyEmail);
 router.put('/resendverificationcode', protect, resendVerificationCode);
 router.put('/resendresetcode', protect, resendResetCode);
 router.put('/updatepasswordaftercode', protect, updatePasswordAfterCode);
+router.get('/google', protect, googleAuth);
+
+router.get('/google/callback', callbackURL);
 module.exports = router;
