@@ -18,7 +18,7 @@ const connectDb = require(`./config/db`);
 const errorHandler = require(`./middleware/error`);
 
 dotenv.config({ path: './config/config.env' });
-require('./services/passport');
+//require('./services/passport');
 const auth = require(`./routes/auth`);
 const instructor = require('./routes/instructor');
 const student = require('./routes/student');
