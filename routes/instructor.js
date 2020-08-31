@@ -9,6 +9,7 @@ const {
 } = require('../controllers/Instructor');
 
 const { protect, authorize } = require('../middleware/auth');
+const { getLessonByID } = require('../controllers/lesson');
 
 router.route('/:id').get(getInstructor);
 

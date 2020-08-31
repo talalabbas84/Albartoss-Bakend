@@ -31,20 +31,29 @@ exports.bookLesson = asynchandler(async (req, res, next) => {
 
 // @desc Get all the currently scheduled lessons
 //@route GET /api/v1/lesson/getscheduledlesson
-// @access Private (acccess to both student and teacher)
+// @access Private (acccess to instructor)
 exports.getScheduledLesson = asynchandler(async (req, res, next) => {
-  req.body.lesson.lessonAssignedBy = req.user._id;
-
-  // Make sure user is course owner
-  if (req.user.role !== 'student') {
+  console.log(req.user._id);
+  let scheduledLesson;
+  if (req.user.role === 'instructor') {
+    scheduledLesson = await Lesson.find({
+      lessonBookStatus: 'accept',
+      lessonAssignedTo: req.user._id
+    });
+  } else if (req.user.role === 'student') {
+    scheduledLesson = await Lesson.find({
+      lessonBookStatus: 'accept',
+      lessonAssignedBy: req.user._id
+    });
+  } else {
     return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to add`, 401)
+      new ErrorResponse(`User ${req.user._id} is not authorized to add`, 401)
     );
   }
 
   res.status(200).json({
     success: true,
-    data: lesson
+    data: scheduledLesson
   });
 });
 

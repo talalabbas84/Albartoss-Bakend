@@ -72,15 +72,12 @@ exports.addInstructor = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/instructor/editprofile
 // @access Private
 exports.editProfile = asynchandler(async (req, res, next) => {
-
   if (req.user) {
     let account;
 
     account = await Instructor.find({
       _id: req.userrole
     });
-
-    
 
     if (!account || account.length <= 0) {
       return next(
@@ -120,6 +117,7 @@ exports.editProfile = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/instructor/:id/photo
 // @access Private
 exports.instructorPhotoUpload = asynchandler(async (req, res, next) => {
+  console.log('damn it shouldnt come her');
   const instructor = await Instructor.findById(req.userrole);
   if (!instructor) {
     return next(
