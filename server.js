@@ -27,6 +27,7 @@ const question = require('./routes/question');
 const answer = require('./routes/answer');
 const user = require('./routes/user');
 const lesson = require(`./routes/lesson`);
+const billing = require(`./routes/billing`);
 const passport = require('passport');
 
 // if (cluster.isMaster) {
@@ -92,6 +93,7 @@ app.use(`/api/v1/question`, question);
 app.use(`/api/v1/answer`, answer);
 app.use(`/api/v1/user`, user);
 app.use(`/api/v1/lesson`, lesson);
+app.use(`/api/v1/billing`, billing);
 
 app.use(errorHandler);
 
