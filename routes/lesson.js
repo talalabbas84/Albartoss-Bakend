@@ -13,7 +13,7 @@ const { protect, authorize } = require('../middleware/auth');
 
 //router.route('/:id').get(getStudent);
 router.route('/booklesson').post(protect, authorize('student'), bookLesson);
-router.route('/getscheduledlesson').get(protect, getScheduledLesson);
+router.route('/getscheduledlesson').post(protect, getScheduledLesson);
 router
   .route('/getlessonrequest')
   .get(protect, authorize('instructor'), getLessonRequest);
