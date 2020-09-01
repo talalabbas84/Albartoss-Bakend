@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const { getCategories } = require('../controllers/category');
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 const {
   setupStripe,
   getStripeAccount,

@@ -6,23 +6,30 @@ const User = require(`../models/User`);
 const ErrorResponse = require(`../utils/errorResponse`);
 const asynchandler = require(`../middleware/async`);
 
+// @desc Get all instructor
+//@route GET /api/v1/instructor
+// @access Private
+exports.getInstructors = asynchandler(async (req, res, next) => {
+  res.status(200).json(res.advancedResults);
+});
+
 // @desc GetInstructor
 //@route GET /api/v1/instructor
 //@route GET /api/v1/instructor/:bootcampId/courses
 // @access Public
-exports.getInstructors = asynchandler(async (req, res, next) => {
-  if (req.params.bootcampId) {
-    const courses = await Course.find({ bootcamp: req.params.bootcampId });
+// exports.getInstructors = asynchandler(async (req, res, next) => {
+//   if (req.params.bootcampId) {
+//     const courses = await Course.find({ bootcamp: req.params.bootcampId });
 
-    return res.status(200).json({
-      success: true,
-      count: courses.length,
-      data: courses
-    });
-  } else {
-    res.status(200).json(res.advancedResults);
-  }
-});
+//     return res.status(200).json({
+//       success: true,
+//       count: courses.length,
+//       data: courses
+//     });
+//   } else {
+//     res.status(200).json(res.advancedResults);
+//   }
+// });
 
 // @desc Get single instructor
 // @route GET /api/v1/instructor/:id

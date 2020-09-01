@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 const {
-  addInstructor,
+  getInstructors,
 
   getInstructor,
   instructorPhotoUpload,
@@ -10,6 +10,8 @@ const {
 
 const { protect, authorize } = require('../middleware/auth');
 const { getLessonByID } = require('../controllers/lesson');
+const advancedResults = require('../middleware/advancedResults');
+const Instructor = require('../models/Instructor');
 
 router.route('/:id').get(getInstructor);
 
@@ -17,6 +19,14 @@ router.route('/:id').get(getInstructor);
 //   .route('/addinstructor')
 
 //   .post(protect, authorize('instructor'), addInstructor);
+
+router.route('/').get(
+  advancedResults(Instructor, {
+    path: 'instructor',
+    select: 'name description'
+  }),
+  getInstructors
+);
 
 router.route('/editprofile').put(protect, authorize('instructor'), editProfile);
 

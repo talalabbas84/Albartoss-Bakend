@@ -36,6 +36,9 @@ const instructorSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: true
+    },
+    review: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }]
     }
   },
   {
