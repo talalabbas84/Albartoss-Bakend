@@ -4,7 +4,7 @@ const instructorSchema = new mongoose.Schema(
   {
     photo: {
       type: String,
-      default: 'no-photo.jpg'
+      default: 'https://professorly.herokuapp.com/uploads/no-photo.jpg'
     },
     name: {
       type: String,
