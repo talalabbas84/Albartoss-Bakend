@@ -22,7 +22,7 @@ router.route('/:id').get(getInstructor);
 
 router.route('/').get(
   advancedResults(Instructor, {
-    path: 'instructor',
+    path: 'user',
     select: 'name description'
   }),
   getInstructors
