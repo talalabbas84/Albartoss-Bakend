@@ -71,7 +71,7 @@ exports.getLessonRequest = asynchandler(async (req, res, next) => {
   const lessonsrequest = await Lesson.find({
     requested: true,
     lessonAssignedTo: req.user._id
-  });
+  }).populate('lessonAssignedBy lessonAssignedTo');
 
   res.status(200).json({
     success: true,
