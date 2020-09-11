@@ -35,16 +35,17 @@ exports.bookLesson = asynchandler(async (req, res, next) => {
 exports.getScheduledLesson = asynchandler(async (req, res, next) => {
   console.log(req.user._id);
   let scheduledLesson;
+  console.log(req.user);
   if (req.user.role === 'instructor') {
     scheduledLesson = await Lesson.find({
       lessonBookStatus: 'accept',
       lessonAssignedTo: req.user._id
-    });
+    }).populate('lessonAssignedTo lessonAssignedBy');
   } else if (req.user.role === 'student') {
     scheduledLesson = await Lesson.find({
       lessonBookStatus: 'accept',
       lessonAssignedBy: req.user._id
-    });
+    }).populate('lessonAssignedTo lessonAssignedBy');
   } else {
     return next(
       new ErrorResponse(`User ${req.user._id} is not authorized to add`, 401)
@@ -193,7 +194,7 @@ exports.getLessonsByView = asynchandler(async (req, res, next) => {
     testlesssons = lessons.map(lesson => {
       const date = moment(lesson.lessonDate).format('YYYY-M-D');
 
-      const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
+      // const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
 
       if (
         getWeekOfMonth(new Date(date)).toString() === req.body.weekNo.toString()
