@@ -186,7 +186,9 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
 // @desc Search the lessons by day view and week view
 // @route GET /api/v1/lesson/getlessonsbyView
 //@access Private Teacher
+
 exports.getLessonsByView = asynchandler(async (req, res, next) => {
+  console.log('get lesson ');
   const lessons = await Lesson.find({ lessonAssignedTo: req.user._id });
 
   let testlesssons = [];
@@ -194,7 +196,7 @@ exports.getLessonsByView = asynchandler(async (req, res, next) => {
     testlesssons = lessons.map(lesson => {
       const date = moment(lesson.lessonDate).format('YYYY-M-D');
 
-      // const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
+      const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
 
       if (
         getWeekOfMonth(new Date(date)).toString() === req.body.weekNo.toString()

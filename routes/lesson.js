@@ -11,6 +11,8 @@ const {
 
 const { protect, authorize } = require('../middleware/auth');
 
+router.route('/getlessonsbyView').post(protect, getLessonsByView);
+
 //router.route('/:id').get(getStudent);
 router.route('/booklesson').post(protect, authorize('student'), bookLesson);
 router.route('/getscheduledlesson').post(protect, getScheduledLesson);
@@ -22,7 +24,6 @@ router
   .route('/lessonstatus/:id')
   .post(protect, authorize('instructor'), lessonStatus);
 
-router.route('/getlessonsbyView').post(protect, getLessonsByView);
 router.route('/:id').get(protect, getLessonByID);
 
 module.exports = router;
