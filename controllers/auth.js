@@ -403,6 +403,7 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     process.env.googleRedirectedURL
   );
 
+  console.log(process.env.googleRedirectedURL);
   // generate a url that asks permissions for Blogger and Google Calendar scopes
   const scopes = [
     'https://www.googleapis.com/auth/calendar',
