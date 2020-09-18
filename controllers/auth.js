@@ -415,8 +415,8 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     access_type: 'offline',
 
     // If you only need one scope you can pass it as a string
-    scope: scopes,
-    state: JSON.stringify({ id: `${req.user._id}` })
+    scope: scopes
+    // state: JSON.stringify({ id: `${req.user._id}` })
   });
   url = url + `&user.id=${req.user._id}`;
   console.log(url);
