@@ -50,37 +50,37 @@ exports.register = asynchandler(async (req, res, next) => {
 
   //var val = Math.floor(1000 + Math.random() * 9000);
 
-  if (user) {
-    // Sending email to verify the email
+  // if (user) {
+  //   // Sending email to verify the email
 
-    // const VerificationUrl = `${req.protocol}://${req.get(
-    //   'host'
-    // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
+  //   // const VerificationUrl = `${req.protocol}://${req.get(
+  //   //   'host'
+  //   // )}/api/v1/auth/verifyemail/${user.emailVerificationCode}/${user.email} `;
 
-    const message = `You are receiving this email because you
-     (or someone else) has made an account with this email.
-     Your verfication code is \n\n ${emailVerificationCode}
-    `;
+  //   const message = `You are receiving this email because you
+  //    (or someone else) has made an account with this email.
+  //    Your verfication code is \n\n ${emailVerificationCode}
+  //   `;
 
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Email Verification',
-        message
-      });
+  //   try {
+  //     await sendEmail({
+  //       email: user.email,
+  //       subject: 'Email Verification',
+  //       message
+  //     });
 
-      sendTokenResponse(user, 200, res, userrole);
-    } catch (err) {
-      console.log(err);
-      user.resetPasswordExpire = undefined;
-      user.emailVerificationCode = undefined;
-      await user.remove();
+  //     sendTokenResponse(user, 200, res, userrole);
+  //   } catch (err) {
+  //     console.log(err);
+  //     user.resetPasswordExpire = undefined;
+  //     user.emailVerificationCode = undefined;
+  //     await user.remove();
 
-      return next(new ErrorResponse(`Email could not be sent`, 500));
-    }
-  }
+  //     return next(new ErrorResponse(`Email could not be sent`, 500));
+  //   }
+  // }
 
-  // sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res, userrole);
 });
 
 // @desc Verify Email
