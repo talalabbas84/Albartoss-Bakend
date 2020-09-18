@@ -188,13 +188,13 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
 //@access Private Teacher
 
 exports.getLessonsByView = asynchandler(async (req, res, next) => {
-  console.log('get lesson ');
-  const lessons = await Lesson.find({ lessonAssignedTo: req.user._id });
+  const lessons = await Lesson.find({ lessonAssignedBy: req.user._id });
 
   let testlesssons = [];
   if (req.body.view === 'week') {
     testlesssons = lessons.map(lesson => {
       const date = moment(lesson.lessonDate).format('YYYY-M-D');
+      console.log(date);
 
       const noOfweek = calcWeeksInMonth(moment(lesson.lessonDate));
 
@@ -205,15 +205,22 @@ exports.getLessonsByView = asynchandler(async (req, res, next) => {
       }
     });
   } else if (req.body.view === 'day') {
+    console.log(lessons);
+
     testlesssons = lessons.map(lesson => {
       const day = moment(lesson.lessonDate)
         .format('D/MM/YYYY')
         .toString()
         .split('/')[0];
+
       const month = moment(lesson.lessonDate)
         .format('D/MM/YYYY')
         .toString()
         .split('/')[1];
+
+      console.log(day, 'day');
+      console.log(month, 'month');
+      console.log('hello');
       if (
         day.toString() === req.body.dayNo &&
         month.toString() === req.body.monthNo

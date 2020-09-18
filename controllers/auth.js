@@ -418,6 +418,7 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     state: JSON.stringify({ id: `${req.user._id}` })
   });
   url = url + `&user.id=${req.user._id}`;
+  console.log(url);
   return res.status(200).json({
     success: true,
     url: url
