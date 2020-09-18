@@ -188,7 +188,9 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
 //@access Private Teacher
 
 exports.getLessonsByView = asynchandler(async (req, res, next) => {
-  const lessons = await Lesson.find({ lessonAssignedBy: req.user._id });
+  const lessons = await Lesson.find({
+    lessonAssignedBy: req.user._id
+  }).populate('lessonAssignedBy lessonAssignedTo');
 
   let testlesssons = [];
   if (req.body.view === 'week') {
