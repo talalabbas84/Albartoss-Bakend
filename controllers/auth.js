@@ -403,12 +403,15 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     process.env.googleRedirectedURL
   );
 
+  console.log(oauth2Client);
   console.log(process.env.googleRedirectedURL);
   // generate a url that asks permissions for Blogger and Google Calendar scopes
   const scopes = [
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/calendar.events'
   ];
+
+  console.log(scopes);
 
   let url = oauth2Client.generateAuthUrl({
     // 'online' (default) or 'offline' (gets refresh_token)
@@ -419,6 +422,7 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     // state: JSON.stringify({ id: `${req.user._id}` })
   });
   url = url + `&user.id=${req.user._id}`;
+
   console.log(url);
   return res.status(200).json({
     success: true,
