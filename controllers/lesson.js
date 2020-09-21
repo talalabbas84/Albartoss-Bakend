@@ -108,24 +108,25 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
       }
     ).populate('lessonAssignedBy lessonAssignedTo');
     console.log(lesson);
-    if (googleCalendar) {
+    console.log(googleCalendar, 'goooooooooooogle calende');
+    if (googleCalendar.length > 0) {
       const event = {
         summary: `Albartoss Lesson${lesson.lessonStarTime}-${lesson.lessonEndTime}`,
 
         description: `${lesson.description}`,
         start: {
-          dateTime: '2015-05-28T09:00:00-07:00',
+          dateTime: `${lesson.lessonStarTime}`,
           timeZone: 'America/Los_Angeles'
         },
         end: {
-          dateTime: '2015-05-28T17:00:00-07:00',
+          dateTime: `${lesson.lessonEndTime}`,
           timeZone: 'America/Los_Angeles'
         },
         recurrence: ['RRULE:FREQ=DAILY;COUNT=2'],
-        attendees: [
-          { email: 'lpage@example.com' },
-          { email: 'sbrin@example.com' }
-        ],
+        // attendees: [
+        //   { email: 'lpage@example.com' },
+        //   { email: 'sbrin@example.com' }
+        // ],
         reminders: {
           useDefault: false,
           overrides: [
