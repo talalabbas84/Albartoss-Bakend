@@ -418,8 +418,8 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
     access_type: 'offline',
 
     // If you only need one scope you can pass it as a string
-    scope: scopes
-    // state: JSON.stringify({ id: `${req.user._id}` })
+    scope: scopes,
+    state: JSON.stringify({ id: `${req.user._id}` })
   });
   url = url + `&user.id=${req.user._id}`;
 
@@ -436,8 +436,11 @@ exports.callbackURL = asynchandler(async (req, res, next) => {
     process.env.googleClientSecret,
     process.env.googleRedirectedURL
   );
+
+  console.log(req.query);
   console.log(JSON.parse(req.query.state).id);
 
+  console.log('is it coming here');
   const { tokens } = await oauth2Client.getToken(req.query.code);
   const googleCalendar = await GoogleCalendar.create({
     tokens,
@@ -473,6 +476,10 @@ exports.callbackURL = asynchandler(async (req, res, next) => {
       }
     );
   }
+
+  console.log('dsha');
+
+  res.redirect('http://localhost:8100/home/dashboard');
   return res.status(200).json({
     success: true,
     googleCalendar: googleCalendar
