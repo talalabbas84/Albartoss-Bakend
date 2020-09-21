@@ -431,6 +431,8 @@ exports.googleAuth = asynchandler(async (req, res, next) => {
   // res.redirect(url);
 });
 exports.callbackURL = asynchandler(async (req, res, next) => {
+  console.log('lmaooooooooooooooooo');
+
   const oauth2Client = new google.auth.OAuth2(
     process.env.googleClientID,
     process.env.googleClientSecret,
