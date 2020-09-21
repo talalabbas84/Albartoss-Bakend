@@ -4,15 +4,15 @@ var SchemaTypes = mongoose.Schema.Types;
 
 const lessonSchema = new mongoose.Schema({
   lessonStartTime: {
-    type: Date,
+    type: String,
     required: [true, 'Please enter the lesson start time']
   },
   lessonEndTime: {
-    type: Date,
+    type: String,
     required: [true, 'Please enter the lesson end time ']
   },
   lessonDate: {
-    type: Date,
+    type: String,
     required: [true, 'Please enter the lesson date']
   },
   lessonAssignedBy: {
