@@ -118,11 +118,11 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
 
         description: `${lesson.description}`,
         start: {
-          dateTime: `${lesson.lessonStarTime}`,
+          dateTime: '2015-05-28T09:00:00-07:00',
           timeZone: 'America/Los_Angeles'
         },
         end: {
-          dateTime: `${lesson.lessonEndTime}`,
+          dateTime: '2015-05-28T09:00:00-07:00',
           timeZone: 'America/Los_Angeles'
         },
         recurrence: ['RRULE:FREQ=DAILY;COUNT=2'],
