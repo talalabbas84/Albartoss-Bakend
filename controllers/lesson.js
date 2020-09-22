@@ -114,15 +114,15 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
       console.log(lesson.lessonEndTime);
 
       const event = {
-        summary: `Albartoss Lesson${lesson.lessonStarTime}-${lesson.lessonEndTime}`,
+        summary: `Albartoss Lesson${lesson.lessonStartTime}-${lesson.lessonEndTime}`,
 
         description: `${lesson.description}`,
         start: {
-          dateTime: '2015-05-28T09:00:00-07:00',
+          dateTime: `${lesson.lessonStartTime}`,
           timeZone: 'America/Los_Angeles'
         },
         end: {
-          dateTime: '2015-05-28T09:00:00-07:00',
+          dateTime: `${lesson.lessonEndTime}`,
           timeZone: 'America/Los_Angeles'
         },
         recurrence: ['RRULE:FREQ=DAILY;COUNT=2'],
