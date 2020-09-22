@@ -110,6 +110,9 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
     console.log(lesson);
     console.log(googleCalendar, 'goooooooooooogle calende');
     if (googleCalendar.length > 0) {
+      console.log(lesson.lessonStarTime);
+      console.log(lesson.lessonEndTime);
+
       const event = {
         summary: `Albartoss Lesson${lesson.lessonStarTime}-${lesson.lessonEndTime}`,
 
