@@ -107,10 +107,10 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
         runValidators: true
       }
     ).populate('lessonAssignedBy lessonAssignedTo');
-    console.log(lesson);
+    // console.log(lesson);
     console.log(googleCalendar, 'goooooooooooogle calende');
     if (googleCalendar.length > 0) {
-      console.log(lesson.lessonStarTime, 'lessonnn start timeee');
+      console.log(lesson.lessonStartTime, 'lessonnn start timeee');
       console.log(lesson.lessonEndTime, 'lesson enddd timeee');
 
       const event = {
@@ -118,11 +118,13 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
 
         description: `${lesson.description}`,
         start: {
-          dateTime: '2015-05-28T17:00:00-07:00',
+          // dateTime: `2015-05-28T09:00:00-07:00`,
+          dateTime: `${lesson.lessonStartTime}`,
           timeZone: 'America/Los_Angeles'
         },
         end: {
-          dateTime: '2015-05-28T09:00:00-07:00',
+          // dateTime: `2015-05-28T17:00:00-07:00`,
+          dateTime: `${lesson.lessonEndTime}`,
           timeZone: 'America/Los_Angeles'
         },
         recurrence: ['RRULE:FREQ=DAILY;COUNT=2'],
@@ -164,7 +166,7 @@ exports.lessonStatus = asynchandler(async (req, res, next) => {
           console.log('Event created: %s', event.htmlLink);
         }
       );
-      console.log(googleCalendar);
+      // console.log(googleCalendar);
     }
   } else if (req.body.lessonBookStatus === 'decline') {
     lesson = await Lesson.findByIdAndUpdate(
