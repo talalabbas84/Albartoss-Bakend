@@ -75,7 +75,20 @@ app.use(limiter);
 app.use(hpp());
 
 //Enable CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:8100',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Origin',
+      'x-access-token',
+      'XSRF-TOKEN'
+    ],
+    preflightContinue: false
+  })
+);
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
