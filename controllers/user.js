@@ -32,6 +32,7 @@ exports.userPhotoUpload = asynchandler(async (req, res, next) => {
       )
     );
   }
+
   if (!req.files) {
     return next(new ErrorResponse(`Please upload a file`, 400));
   }
@@ -52,6 +53,11 @@ exports.userPhotoUpload = asynchandler(async (req, res, next) => {
 
   //Create custom filename
   file.name = `photo_${account[0]._id}${path.parse(file.name).ext}`;
+  // cloudinary.config({
+  //   cloud_name: `${process.env.CLOUDINARY_NAME}`,
+  //   api_key: `${process.env.CLOUDINARY_API_KEY}`,
+  //   api_secret: `${process.env.CLOUDINARY_API_SECRET}`
+  // });
 
   file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
     if (err) {
@@ -59,11 +65,28 @@ exports.userPhotoUpload = asynchandler(async (req, res, next) => {
       return next(new ErrorResponse(`Problem with file upload`, 500));
     }
     const user = await User.findByIdAndUpdate(req.user._id, {
-      photo: file.name
+      photo: `https://albatross-v1.herokuapp.com/uploads/${file.name}`
     });
-
-    return res.status(200).json({ success: true, data: file.name, user });
+    console.log(user);
+    return res.status(200).json({
+      success: true,
+      data: file.name,
+      user,
+      url: `https://albatross-v1.herokuapp.com/uploads/${file.name}`
+    });
   });
+  // cloudinary.v2.uploader.upload(
+  //   path.join(__dirname, `public/uploads/${file.name}`),
+  //   {
+  //     resource_type: 'image',
+  //     public_id: 'my_folder/my_sub_folder/my_dog',
+  //     overwrite: true,
+  //     notification_url: 'https://mysite.example.com/notify_endpoint'
+  //   },
+  //   function (error, result) {
+  //     console.log(result, error);
+  //   }
+  // );
 });
 
 // @desc Update accountal info User
