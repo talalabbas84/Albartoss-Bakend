@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
       'Please add a valid email'
     ]
   },
+  photo: {
+    type: String,
+    default: 'https://professorly.herokuapp.com/uploads/no-photo.jpg'
+  },
   mobilenumber: String,
   role: {
     type: String,
@@ -36,6 +40,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+
   resetPasswordVerification: false,
 
   emailVerificationCode: String,
