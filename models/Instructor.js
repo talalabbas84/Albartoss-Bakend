@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 
 const instructorSchema = new mongoose.Schema(
   {
-    photo: {
-      type: String,
-      default: 'https://professorly.herokuapp.com/uploads/no-photo.jpg'
-    },
     name: {
       type: String,
       required: true
