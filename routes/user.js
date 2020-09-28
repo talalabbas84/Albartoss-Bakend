@@ -6,6 +6,6 @@ const { protect, authorize } = require('../middleware/auth');
 
 router.route('/updateinfo').put(protect, updateUser);
 
-router.route('/photo').put(protect, userPhotoUpload);
+router.route('/photo').post(protect, userPhotoUpload);
 
 module.exports = router;
