@@ -77,7 +77,7 @@ app.use(hpp());
 //Enable CORS
 app.use(
   cors({
-    origin: 'http://localhost:8100',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: [
       'Content-Type',
