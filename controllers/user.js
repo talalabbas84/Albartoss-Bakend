@@ -11,6 +11,9 @@ const Instructor = require('../models/Instructor');
 //@route PUT /api/v1/user/photo
 // @access Private
 exports.userPhotoUpload = asynchandler(async (req, res, next) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', '*');
+
   let account;
   if (req.user.role === 'student') {
     account = await Student.find({ _id: req.userrole });
