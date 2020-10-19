@@ -293,7 +293,7 @@ exports.updatePassword = asynchandler(async (req, res, next) => {
 //@route PUT /api/v1/auth/updatepasswordaftercode
 // @access Private
 exports.updatePasswordAfterCode = asynchandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select('+password');
+  const user = await User.findOne({ email: req.body.email });
 
   if (user.resetPasswordVerification) {
     const userrole = await getuserRoleId(user);
@@ -358,38 +358,35 @@ exports.forgetPassword = asynchandler(async (req, res, next) => {
 //@route POST /api/v1/auth/verifyresetcode
 // @access Public
 exports.verifyResetCode = asynchandler(async (req, res, next) => {
+  console.log(req.body.email);
   // Get hashed token
-  if (req.user) {
-    const user = await User.findOne({ email: req.user.email }).select(
-      '-password'
-    );
+
+  const user = await User.findOne({ email: req.body.email });
+
+  // const userrole = await getuserRoleId(user);
+
+  if (!user) {
+    return next(new ErrorResponse('User doesnt exist', 400));
+  }
+
+  if (
+    user.resetPasswordCode &&
+    user.resetPasswordCode &&
+    user.resetPasswordCode.toString() === req.body.resetPasswordCode.toString()
+    // user.resetPasswordExpire > Date.now()
+  ) {
+    // Verify the  account
+
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpire = undefined;
+    user.resetPasswordVerification = true;
+
+    await user.save();
 
     const userrole = await getuserRoleId(user);
-
-    if (!user) {
-      return next(new ErrorResponse('User doesnt exist', 400));
-    }
-
-    if (
-      user.resetPasswordCode &&
-      user.resetPasswordCode &&
-      user.resetPasswordCode.toString() ===
-        req.body.resetPasswordCode.toString() &&
-      user.resetPasswordExpire > Date.now()
-    ) {
-      // Verify the  account
-
-      user.resetPasswordCode = undefined;
-      user.resetPasswordExpire = undefined;
-      user.resetPasswordVerification = true;
-
-      await user.save();
-      sendTokenResponse(user, 200, res, userrole);
-    } else {
-      return next(new ErrorResponse('Invalid Reset Verification Code', 400));
-    }
+    sendTokenResponse(user, 200, res, userrole);
   } else {
-    return next(new ErrorResponse('User doesnt exist', 400));
+    return next(new ErrorResponse('Invalid Reset Verification Code', 400));
   }
 });
 // @desc Authentication with google

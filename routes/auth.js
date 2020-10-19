@@ -27,11 +27,11 @@ router.post('/login', login);
 // router.put('/updatedetails', protect, updateDetails);
 router.put('/updatepassword', protect, updatePassword);
 router.post('/forgotpassword', forgetPassword);
-router.post('/verifyresetcode', protect, verifyResetCode);
+router.post('/verifyresetcode', verifyResetCode);
 router.put('/verifyemail', protect, verifyEmail);
 router.put('/resendverificationcode', protect, resendVerificationCode);
 router.put('/resendresetcode', protect, resendResetCode);
-router.put('/updatepasswordaftercode', protect, updatePasswordAfterCode);
+router.put('/updatepasswordaftercode', updatePasswordAfterCode);
 router.get('/google', protect, googleAuth);
 
 router.get('/google/callback', callbackURL);
