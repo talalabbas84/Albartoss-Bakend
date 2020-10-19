@@ -29,6 +29,7 @@ const user = require('./routes/user');
 const lesson = require(`./routes/lesson`);
 const billing = require(`./routes/billing`);
 const passport = require('passport');
+const review = require('./routes/review');
 
 // if (cluster.isMaster) {
 //   cluster.fork();
@@ -114,6 +115,7 @@ app.use(`/api/v1/answer`, answer);
 app.use(`/api/v1/user`, user);
 app.use(`/api/v1/lesson`, lesson);
 app.use(`/api/v1/billing`, billing);
+app.use(`/api/v1/review`, review);
 
 app.use(errorHandler);
 

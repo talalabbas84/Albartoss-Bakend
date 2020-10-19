@@ -35,10 +35,9 @@ exports.getInstructors = asynchandler(async (req, res, next) => {
 // @route GET /api/v1/instructor/:id
 // @access Pulic
 exports.getInstructor = asynchandler(async (req, res, next) => {
-  const instructor = await Instructor.findById(req.params.id).populate({
-    path: 'user',
-    select: 'name _id'
-  });
+  const instructor = await Instructor.findById(req.params.id).populate(
+    'user review'
+  );
 
   if (!instructor) {
     return next(

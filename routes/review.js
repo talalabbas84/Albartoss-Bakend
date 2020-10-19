@@ -1,9 +1,9 @@
 const router = require('express').Router();
 
-const { addReview } = require('../controllers/review');
+const { createReview } = require('../controllers/review');
 
 const { protect, authorize } = require('../middleware/auth');
 
-router.route('/addreview').post(protect, authorize('student'), addReview);
+router.route('/addreview').post(protect, createReview);
 
 module.exports = router;
